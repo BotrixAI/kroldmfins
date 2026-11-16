@@ -6,6 +6,7 @@ import { gsap } from 'gsap'
 import { GrowthRings, RingMark } from '../components/about/Rings'
 import { useRevealOnScroll } from '../hooks/useRevealOnScroll'
 import founderPhoto from '../assets/owner2.png'
+import { useSiteContent } from '../components/SiteContent'
 
 // Build → Protect → Grow → Pass Forward is a real sequence, so the steps are numbered,
 // and each emblem gains a ring as wealth matures.
@@ -121,6 +122,7 @@ function Arrow({ className = '' }) {
 }
 
 export default function AboutPage() {
+  const { founderYears } = useSiteContent('about')
   const pageRef = useRef(null)
   const heroTextRef = useRef(null)
   const stepLineRef = useRef(null)
@@ -301,7 +303,7 @@ export default function AboutPage() {
               </div>
             </div>
             <div className="absolute -bottom-4 left-0 flex items-center gap-3 rounded-2xl border border-primary-100 bg-white px-4 py-3 shadow-lg shadow-primary-100/60 dark:border-white/10 dark:bg-neutral-900 dark:shadow-black/40 sm:-left-4">
-              <span className="text-4xl font-bold leading-none text-primary-600 dark:text-primary-400">25+</span>
+              <span className="text-4xl font-bold leading-none text-primary-600 dark:text-primary-400">{founderYears}+</span>
               <span className="text-xs font-medium leading-snug text-black/60 dark:text-white/60">
                 years in wealth
                 <br />
@@ -334,7 +336,7 @@ export default function AboutPage() {
 
             <div className="mt-5 max-w-[62ch] space-y-4 text-[17px] leading-relaxed text-black/65 dark:text-white/65">
               <p>
-                With over 25 years of experience in wealth management and mutual fund distribution, Amit Kumar
+                With over {founderYears} years of experience in wealth management and mutual fund distribution, Amit Kumar
                 Mahansaria has helped families navigate changing markets, evolving financial goals and different stages
                 of life.
               </p>

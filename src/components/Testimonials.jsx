@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 import CountUp from './testimonials/CountUp'
 import TestimonialCard from './testimonials/TestimonialCard'
-import { TESTIMONIALS, HAPPY_CLIENTS_COUNT } from '../data/testimonials'
+import { TESTIMONIALS } from '../data/testimonials'
+import { useSiteContent } from './SiteContent'
 
 // How long a card stays put before the row moves on by itself.
 const AUTOPLAY_MS = 4500
@@ -29,6 +30,7 @@ function ArrowButton({ label, onClick, disabled, flip = false }) {
 // The heading, count and controls on the left; one row of speech bubbles running off the
 // right edge. The row is a native scroller, so it can be swiped as well as stepped.
 export default function Testimonials() {
+  const { happyClients } = useSiteContent('home')
   const trackRef = useRef(null)
   const pausedRef = useRef(false)
   // 0 at the first card, 1 once the row is scrolled to its end.
@@ -104,7 +106,7 @@ export default function Testimonials() {
           <div className="mt-4 flex items-end justify-between gap-6 lg:mt-6 lg:block">
             <p className="flex items-baseline gap-2">
               <span className="bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-4xl font-bold tabular-nums text-transparent lg:text-5xl">
-                <CountUp value={HAPPY_CLIENTS_COUNT} />+
+                <CountUp value={happyClients} />+
               </span>
               <span className="text-sm font-medium text-black/60 dark:text-white/60">happy clients</span>
             </p>

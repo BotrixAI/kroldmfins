@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Link from './Link'
 import { gsap } from 'gsap'
 import CalculatorPanel from './calculators/CalculatorPanel'
 import { FEATURED_CALCULATORS } from './calculators/configs'
@@ -15,21 +14,7 @@ function tabSpan(index, count) {
   return inRow === 3 ? 'col-span-2' : inRow === 2 ? 'col-span-3' : 'col-span-6'
 }
 
-function ExploreLink({ className = '' }) {
-  return (
-    <Link
-      href="/calculators"
-      className={`group items-center gap-2 font-semibold text-primary-700 transition-all duration-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-500 dark:text-primary-300 ${className}`}
-    >
-      Explore more calculators
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">
-        <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </Link>
-  )
-}
-
-// `asPage` renders the full calculators page (h1, no "Explore more" link) instead of the home section.
+// `asPage` renders the full calculators page (h1) instead of the home section.
 // The home section is laid out to fit one desktop screen below the navbar.
 export default function Calculators({ calculators: CALCULATORS = FEATURED_CALCULATORS, asPage = false }) {
   const [activeId, setActiveId] = useState(CALCULATORS[0].id)
@@ -130,7 +115,6 @@ export default function Calculators({ calculators: CALCULATORS = FEATURED_CALCUL
               </button>
             ))}
           </div>
-          {!asPage && <ExploreLink className="absolute right-0 hidden text-sm hover:text-primary-600 lg:inline-flex" />}
         </div>
 
         <div
@@ -149,9 +133,6 @@ export default function Calculators({ calculators: CALCULATORS = FEATURED_CALCUL
         </div>
 
         <div className={`flex flex-col items-center gap-6 ${asPage ? 'mt-8' : 'mt-8 lg:mt-3'}`}>
-          {!asPage && (
-            <ExploreLink className="inline-flex rounded-full border border-primary-200 bg-white px-7 py-3 text-[15px] hover:-translate-y-0.5 hover:border-transparent hover:bg-gradient-to-r hover:from-primary-500 hover:to-secondary-500 hover:text-white hover:shadow-md hover:shadow-primary-200 dark:border-white/15 dark:bg-transparent dark:hover:text-white dark:hover:shadow-black/40 lg:hidden" />
-          )}
           <p className={`text-center text-xs leading-relaxed text-black/45 dark:text-white/45 ${asPage ? 'max-w-2xl' : 'max-w-2xl lg:max-w-4xl'}`}>
             These calculators are for illustration only and use the returns you assume. Actual returns are not
             guaranteed and may vary. Mutual fund investments are subject to market risks; read all scheme-related

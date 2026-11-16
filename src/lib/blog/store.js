@@ -1,67 +1,15 @@
 import 'server-only'
-import { promises as fs } from 'node:fs'
-import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { unstable_cache, revalidatePath, revalidateTag } from 'next/cache'
-import { DB_PUBLIC_ID, getCloudinary, isCloudinaryConfigured } from './cloudinary'
+import { createQueue, readJsonDocument, writeJsonDocument } from './jsonStore'
 import { CATEGORIES, STATUSES, readingTime, slugify } from './utils'
 import { SEED_POSTS } from '../../data/blogPosts'
 
-// All posts are kept in one JSON document. In production that document is a raw file in
-// Cloudinary, so the blog needs no database of its own; in local development without
-// Cloudinary credentials it falls back to a gitignored file in the project.
+// All posts are kept in one JSON document (see jsonStore.js for where it lives).
 export const POSTS_TAG = 'blog-posts'
-const LOCAL_FILE = path.join(process.cwd(), '.blog-data', 'posts.json')
-const canUseLocalFile = () => process.env.NODE_ENV !== 'production'
-
-async function readDocument() {
-  if (isCloudinaryConfigured()) {
-    const cloudinary = getCloudinary()
-    let resource
-    try {
-      resource = await cloudinary.api.resource(DB_PUBLIC_ID, { resource_type: 'raw' })
-    } catch (err) {
-      if (err?.error?.http_code === 404) return null
-      throw new Error(`Could not read blog posts from Cloudinary: ${err?.error?.message || err?.message || err}`)
-    }
-    // The versioned URL is unique per save, so the CDN can never hand back an older copy.
-    const res = await fetch(resource.secure_url, { cache: 'no-store' })
-    if (!res.ok) throw new Error(`Could not download blog posts from Cloudinary (${res.status})`)
-    return res.json()
-  }
-
-  if (!canUseLocalFile()) return null
-  try {
-    return JSON.parse(await fs.readFile(LOCAL_FILE, 'utf8'))
-  } catch (err) {
-    if (err.code === 'ENOENT') return null
-    throw err
-  }
-}
-
-async function writeDocument(doc) {
-  const body = JSON.stringify(doc, null, 2)
-
-  if (isCloudinaryConfigured()) {
-    const cloudinary = getCloudinary()
-    await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { resource_type: 'raw', public_id: DB_PUBLIC_ID, overwrite: true, invalidate: true },
-        (err, result) => (err ? reject(new Error(err.message || 'Cloudinary upload failed')) : resolve(result)),
-      )
-      stream.end(Buffer.from(body, 'utf8'))
-    })
-    return
-  }
-
-  if (!canUseLocalFile()) {
-    throw new Error(
-      'Cloudinary is not configured. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET.',
-    )
-  }
-  await fs.mkdir(path.dirname(LOCAL_FILE), { recursive: true })
-  await fs.writeFile(LOCAL_FILE, body, 'utf8')
-}
+const DOC_NAME = 'posts.json'
+const readDocument = () => readJsonDocument(DOC_NAME)
+const writeDocument = (doc) => writeJsonDocument(DOC_NAME, doc)
 
 // Until the first save the store doesn't exist yet, and the blog shows the seed posts.
 async function loadPosts() {
@@ -70,10 +18,9 @@ async function loadPosts() {
   return posts.map((post) => ({ ...post, readingTime: post.readingTime ?? readingTime(post.content) }))
 }
 
-// Writes from one server instance run one at a time, so two quick saves can't drop each other.
-let queue = Promise.resolve()
+const enqueue = createQueue()
 function mutate(change) {
-  const run = queue.then(async () => {
+  return enqueue(async () => {
     const posts = await loadPosts()
     const { posts: next, result } = await change(posts)
     await writeDocument({ version: 1, updatedAt: new Date().toISOString(), posts: next })
@@ -81,8 +28,6 @@ function mutate(change) {
     revalidatePath('/blog', 'layout')
     return result
   })
-  queue = run.catch(() => {})
-  return run
 }
 
 const byNewest = (key) => (a, b) => new Date(b[key] || 0) - new Date(a[key] || 0)

@@ -24,8 +24,8 @@ export function ColumnChart({ bars, format = (v) => v.toFixed(1), height = 'h-56
   return (
     <div>
       <div className={`flex ${height} items-end gap-3 border-b border-black/15 dark:border-white/20 sm:gap-5`}>
-        {bars.map((b) => (
-          <div key={b.label} tabIndex={0} className="group relative flex h-full flex-1 flex-col items-center justify-end outline-none">
+        {bars.map((b, i) => (
+          <div key={i} tabIndex={0} className="group relative flex h-full flex-1 flex-col items-center justify-end outline-none">
             <span className={`${TIP} bottom-full mb-1 group-hover:opacity-100 group-focus-visible:opacity-100`}>
               {b.label}: {format(b.value)}
               {b.worth ? `, ${b.worth}` : ''}
@@ -39,8 +39,8 @@ export function ColumnChart({ bars, format = (v) => v.toFixed(1), height = 'h-56
         ))}
       </div>
       <div className="mt-2 flex gap-3 sm:gap-5">
-        {bars.map((b) => (
-          <div key={b.label} className="flex-1 text-center">
+        {bars.map((b, i) => (
+          <div key={i} className="flex-1 text-center">
             <p className="text-sm font-medium text-black/70 dark:text-white/70">{b.label}</p>
             {b.worth ? <p className="text-xs tabular-nums text-black/45 dark:text-white/45">{b.worth}</p> : null}
           </div>
@@ -64,7 +64,7 @@ export function StackedShare({ groups }) {
       <div className="flex h-11 gap-[2px] overflow-visible">
         {groups.map((g, i) => (
           <div
-            key={g.label}
+            key={i}
             tabIndex={0}
             className={`group relative flex items-center justify-center outline-none first:rounded-l-[4px] last:rounded-r-[4px] ${AGE_TONES[i].bar}`}
             style={{ width: `${g.share}%` }}
@@ -80,7 +80,7 @@ export function StackedShare({ groups }) {
       </div>
       <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
         {groups.map((g, i) => (
-          <li key={g.label} className="flex items-center gap-2 text-sm text-black/65 dark:text-white/65">
+          <li key={i} className="flex items-center gap-2 text-sm text-black/65 dark:text-white/65">
             <span className={`h-3 w-3 rounded-[3px] ${AGE_TONES[i].bar}`} aria-hidden="true" />
             {g.label} <span className="tabular-nums text-black/45 dark:text-white/45">{g.share}%, {g.people}</span>
           </li>
@@ -101,9 +101,9 @@ export function ChangeBars({ rows }) {
         <span className="text-right">Annualised (CAGR)</span>
       </div>
       <ul>
-        {rows.map((r) => (
+        {rows.map((r, i) => (
           <li
-            key={r.name}
+            key={i}
             tabIndex={0}
             className="group relative grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 border-b border-black/5 py-2.5 outline-none last:border-0 dark:border-white/5 sm:grid-cols-[10rem_1fr_auto]"
           >
@@ -155,12 +155,20 @@ export function SensexLine({ points, latest }) {
   const pad = { top: 28, right: width < 480 ? 12 : 24, bottom: 28, left: 38 }
   const x0 = points[0][0]
   const x1 = points[points.length - 1][0] + 1
-  const yMax = 90000
+  // Gridlines every third of a round ceiling just above the highest value (90k for a peak of 85k).
+  const peak = Math.max(...points.map(([, v]) => v), latest.value)
+  const yStep = Math.ceil(peak / 3 / 10000) * 10000
+  const yMax = yStep * 3
+  const showLatest = latest.x > points[points.length - 1][0]
   const sx = (x) => pad.left + ((x - x0) / (x1 - x0)) * (width - pad.left - pad.right)
   const sy = (v) => pad.top + (1 - v / yMax) * (H - pad.top - pad.bottom)
   const d = points.map(([x, v], i) => `${i ? 'L' : 'M'}${sx(x).toFixed(1)},${sy(v).toFixed(1)}`).join(' ')
   const last = points[points.length - 1]
-  const low = points.find(([x]) => x === 2008)
+  // Marks the worst one-year fall (2008: −52% in the original figures).
+  const low = points.slice(1).reduce((worst, p, i) => {
+    const fall = p[1] / points[i][1] - 1
+    return fall < (worst?.fall ?? 0) ? { x: p[0], v: p[1], fall } : worst
+  }, null)
   const yearStep = width < 480 ? 10 : 5
   const fmt = (v) => v.toLocaleString('en-IN')
 
@@ -170,7 +178,7 @@ export function SensexLine({ points, latest }) {
     const year = Math.round(x0 + ((px - pad.left) / (width - pad.left - pad.right)) * (x1 - x0))
     const hit = points.find(([x]) => x === year)
     if (hit) setHover({ x: hit[0], v: hit[1], label: `Dec ${hit[0]}` })
-    else if (year > last[0]) setHover({ x: latest.x, v: latest.value, label: latest.label })
+    else if (year > last[0] && showLatest) setHover({ x: latest.x, v: latest.value, label: latest.label })
     else setHover(null)
   }
 
@@ -181,11 +189,11 @@ export function SensexLine({ points, latest }) {
         height={H}
         className="block touch-pan-y text-black dark:text-white"
         role="img"
-        aria-label={`BSE Sensex rose from ${fmt(points[0][1])} at the end of 2000 to ${fmt(last[1])} at the end of 2025, then fell to ${fmt(latest.value)} by ${latest.label}.`}
+        aria-label={`BSE Sensex: ${fmt(points[0][1])} at the end of ${x0}, ${fmt(last[1])} at the end of ${last[0]}${showLatest ? `, and ${fmt(latest.value)} on ${latest.label}` : ''}.`}
         onPointerMove={onMove}
         onPointerLeave={() => setHover(null)}
       >
-        {[0, 30000, 60000, 90000].map((v) => (
+        {[0, yStep, yStep * 2, yMax].map((v) => (
           <g key={v}>
             <line x1={pad.left} x2={width - pad.right} y1={sy(v)} y2={sy(v)} stroke="currentColor" strokeOpacity={v ? 0.08 : 0.2} />
             <text x={pad.left - 8} y={sy(v)} dy="0.32em" textAnchor="end" fontSize="11" fill="currentColor" fillOpacity="0.5">
@@ -202,6 +210,7 @@ export function SensexLine({ points, latest }) {
           ))}
 
         <path d={d} fill="none" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" className="stroke-primary-600 dark:stroke-primary-400" />
+        {showLatest ? (
         <line
           x1={sx(last[0])}
           y1={sy(last[1])}
@@ -212,18 +221,25 @@ export function SensexLine({ points, latest }) {
           strokeLinecap="round"
           className="stroke-secondary-600 dark:stroke-secondary-400"
         />
+        ) : null}
 
-        <text x={sx(low[0])} y={sy(low[1]) + 18} textAnchor="middle" fontSize="11" fill="currentColor" fillOpacity="0.55" className={HALO}>
-          2008: −52%
-        </text>
+        {low && low.fall <= -0.2 ? (
+          <text x={sx(low.x)} y={sy(low.v) + 18} textAnchor="middle" fontSize="11" fill="currentColor" fillOpacity="0.55" className={HALO}>
+            {low.x}: −{Math.round(-low.fall * 100)}%
+          </text>
+        ) : null}
         <circle cx={sx(last[0])} cy={sy(last[1])} r="4" strokeWidth="2" className="fill-primary-600 stroke-white dark:fill-primary-400 dark:stroke-neutral-950" />
-        <circle cx={sx(latest.x)} cy={sy(latest.value)} r="4" strokeWidth="2" className="fill-secondary-600 stroke-white dark:fill-secondary-400 dark:stroke-neutral-950" />
         <text x={sx(last[0]) - 10} y={sy(last[1]) - 10} textAnchor="end" fontSize="12" fontWeight="600" fill="currentColor" fillOpacity="0.85" className={HALO}>
-          {fmt(last[1])} (Dec 2025)
+          {fmt(last[1])} (Dec {last[0]})
         </text>
-        <text x={sx(latest.x) - 6} y={sy(latest.value) + 26} textAnchor="end" fontSize="12" fontWeight="600" className={`fill-secondary-700 dark:fill-secondary-400 ${HALO}`}>
-          {fmt(latest.value)} ({latest.label})
-        </text>
+        {showLatest ? (
+          <>
+            <circle cx={sx(latest.x)} cy={sy(latest.value)} r="4" strokeWidth="2" className="fill-secondary-600 stroke-white dark:fill-secondary-400 dark:stroke-neutral-950" />
+            <text x={sx(latest.x) - 6} y={sy(latest.value) + 26} textAnchor="end" fontSize="12" fontWeight="600" className={`fill-secondary-700 dark:fill-secondary-400 ${HALO}`}>
+              {fmt(latest.value)} ({latest.label})
+            </text>
+          </>
+        ) : null}
 
         {hover ? (
           <g pointerEvents="none">

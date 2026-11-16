@@ -1,11 +1,11 @@
 import 'server-only'
 import { v2 as cloudinary } from 'cloudinary'
 
-// Everything the blog puts in Cloudinary lives under this folder: post data in /db,
+// Everything the site puts in Cloudinary lives under this folder: post and site data in /db,
 // uploaded images, videos and files in /media.
 export const ROOT_FOLDER = process.env.CLOUDINARY_FOLDER || 'krold-blog'
 export const MEDIA_FOLDER = `${ROOT_FOLDER}/media`
-export const DB_PUBLIC_ID = `${ROOT_FOLDER}/db/posts.json`
+export const DB_FOLDER = `${ROOT_FOLDER}/db`
 
 export function isCloudinaryConfigured() {
   return Boolean(

@@ -8,21 +8,8 @@ import { RingMark } from '../components/about/Rings'
 import { ChangeBars, ChartCard, ColumnChart, SensexLine, StackedShare } from '../components/why-india/Charts'
 import GetInTouch from '../components/GetInTouch'
 import { useRevealOnScroll } from '../hooks/useRevealOnScroll'
-import {
-  AGE_GROUPS,
-  AS_OF,
-  CONCLUSION,
-  DIVERSIFICATION,
-  DOLLAR_TERMS,
-  GDP_GROWTH,
-  INDICES,
-  INTRO,
-  MAKE_IN_INDIA,
-  PEOPLE_STATS,
-  SENSEX,
-  STABILITY,
-  UPI,
-} from '../data/whyIndia'
+import { DIVERSIFICATION, STABILITY } from '../data/whyIndia'
+import { RichText, useSiteContent } from '../components/SiteContent'
 
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -75,7 +62,23 @@ function SectionHead({ id, title, children, light = false, split = false }) {
   )
 }
 
+// The Sensex chart plots year-end closes at x = year, so a date in the following year sits
+// between that year and the next: 13 Oct 2026 → about 2025.78.
+function sensexChart(c) {
+  const points = c.sensexPoints.map((p) => [p.year, p.close])
+  const date = new Date(`${c.sensexLatestDate}T00:00:00Z`)
+  const year = date.getUTCFullYear()
+  const dayOfYear = (date - Date.UTC(year, 0, 1)) / 86400000
+  const label = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+  const latest = { x: year - 1 + dayOfYear / 365, value: c.sensexLatestValue, label }
+  const first = points[0][0]
+  const last = points[points.length - 1][0]
+  return { points, latest, title: `BSE Sensex, year-end close (${first}–${last}) and ${label}` }
+}
+
 export default function WhyIndiaPage() {
+  const c = useSiteContent('whyIndia')
+  const sensex = sensexChart(c)
   const pageRef = useRef(null)
   const heroRef = useRef(null)
 
@@ -111,7 +114,7 @@ export default function WhyIndiaPage() {
             The case for investing{' '}
             <span className="bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text pb-2 text-transparent">back home</span>
           </h1>
-          <p className={`mt-4 max-w-3xl ${BODY}`}>{INTRO}</p>
+          <p className={`mt-4 max-w-3xl ${BODY}`}>{c.intro}</p>
           <nav aria-label="On this page" className="mt-7">
             <ul className="flex flex-wrap gap-2">
               {SECTIONS.map(([id, label], i) => (
@@ -135,21 +138,12 @@ export default function WhyIndiaPage() {
         <div className="mx-auto grid max-w-6xl items-center gap-8 px-5 py-12 lg:grid-cols-[1fr_1fr] lg:gap-12 lg:px-10">
           <SectionHead id="economy" title="Robust Economic Growth">
             <div className={`mt-3 space-y-3 ${BODY}`}>
-              <p>
-                India’s economy grew an estimated <strong className={STRONG}>7.8% in FY 2025-26</strong>. In its October
-                2026 World Economic Outlook, the IMF raised India’s 2026 forecast to <strong className={STRONG}>7.0%</strong>,
-                0.6 percentage points above its July estimate, citing resilient domestic demand and strong services
-                activity.
-              </p>
-              <p>
-                That is more than twice the projected world growth rate of 3.1%, even as the global economy contends with
-                a Middle East conflict and higher energy prices. India now accounts for about 8.2% of world GDP.
-              </p>
+              <RichText text={c.economyText} paragraphs strongClass={STRONG} />
             </div>
-            <p className="mt-4 text-xs leading-relaxed text-black/45 dark:text-white/45">Sources: {GDP_GROWTH.textSource}</p>
+            <p className="mt-4 text-xs leading-relaxed text-black/45 dark:text-white/45">Sources: {c.economySources}</p>
           </SectionHead>
-          <ChartCard title={GDP_GROWTH.title} source={GDP_GROWTH.source}>
-            <ColumnChart bars={GDP_GROWTH.bars} />
+          <ChartCard title={c.gdpTitle} source={c.gdpSource}>
+            <ColumnChart bars={c.gdpBars} />
           </ChartCard>
         </div>
       </section>
@@ -158,26 +152,20 @@ export default function WhyIndiaPage() {
       <section id="people" className="scroll-mt-20 border-t border-black/5 bg-primary-50/40 dark:border-white/10 dark:bg-white/[0.02]">
         <div className="mx-auto max-w-6xl px-5 py-12 lg:px-10">
           <SectionHead id="people" title="Demographic Dividend" split>
-            <p className={`mt-3 ${BODY}`}>
-              India has the world’s largest population and one of its youngest workforces. About{' '}
-              <strong className={STRONG}>58% of Indians are under 35</strong>, and the working-age share is still rising.
-              The Economic Survey estimates India must create nearly{' '}
-              <strong className={STRONG}>7.85 million non-farm jobs every year until 2030</strong> to absorb its growing
-              workforce: a large, expanding pool of talent and consumers.
-            </p>
+            <RichText text={c.peopleText} paragraphs className={`mt-3 ${BODY}`} strongClass={STRONG} />
           </SectionHead>
 
           <dl className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {PEOPLE_STATS.map((s) => (
-              <div key={s.label} data-reveal className={`${CARD} bg-white p-5 dark:bg-white/[0.03]`}>
+            {c.peopleStats.map((s, i) => (
+              <div key={i} data-reveal className={`${CARD} bg-white p-5 dark:bg-white/[0.03]`}>
                 <dd className="text-3xl font-semibold leading-none text-primary-600 dark:text-primary-400">{s.value}</dd>
                 <dt className="mt-2 text-sm leading-relaxed text-black/65 dark:text-white/65">{s.label}</dt>
               </div>
             ))}
           </dl>
 
-          <ChartCard title={AGE_GROUPS.title} source={AGE_GROUPS.source} className="mt-4">
-            <StackedShare groups={AGE_GROUPS.groups} />
+          <ChartCard title={c.ageTitle} source={c.ageSource} className="mt-4">
+            <StackedShare groups={c.ageGroups} />
           </ChartCard>
         </div>
       </section>
@@ -186,16 +174,10 @@ export default function WhyIndiaPage() {
       <section id="digital" className="scroll-mt-20 border-t border-black/5 dark:border-white/10">
         <div className="mx-auto grid max-w-6xl items-center gap-8 px-5 py-12 lg:grid-cols-[1fr_1fr] lg:gap-12 lg:px-10">
           <SectionHead id="digital" title="Digital Transformation: the UPI Revolution">
-            <p className={`mt-3 ${BODY}`}>
-              The Unified Payments Interface (UPI) has made India the world leader in real-time digital payments. In ten
-              years, annual UPI transactions grew almost <strong className={STRONG}>13,000-fold</strong>, from 1.78 crore in
-              FY 2016-17 to more than <strong className={STRONG}>24,162 crore in FY 2025-26</strong>, worth about{' '}
-              <strong className={STRONG}>₹314 lakh crore</strong>. UPI handled nearly{' '}
-              <strong className={STRONG}>49% of all real-time payment transactions worldwide</strong> in 2025.
-            </p>
+            <RichText text={c.digitalText} paragraphs className={`mt-3 ${BODY}`} strongClass={STRONG} />
           </SectionHead>
-          <ChartCard title={UPI.title} source={UPI.source}>
-            <ColumnChart bars={UPI.bars} />
+          <ChartCard title={c.upiTitle} source={c.upiSource}>
+            <ColumnChart bars={c.upiBars} />
           </ChartCard>
         </div>
       </section>
@@ -211,24 +193,25 @@ export default function WhyIndiaPage() {
           />
           <div className="relative px-6 py-10 sm:px-10 lg:px-14">
             <SectionHead id="make-in-india" title="From importer to manufacturing hub" light split>
-              <p className="mt-3 text-[15px] leading-relaxed text-white/65">
-                Launched in September 2014 and backed since 2020 by Production Linked Incentive (PLI) schemes across 14
-                sectors, Make in India has transformed electronics and defence manufacturing. India is now the world’s
-                second-largest mobile phone maker, and mobile phones have become its largest export item.
-              </p>
+              <RichText
+                text={c.makeText}
+                paragraphs
+                className="mt-3 text-[15px] leading-relaxed text-white/65"
+                strongClass="font-semibold text-white/90"
+              />
             </SectionHead>
 
             {/* Phones: one row per sector */}
             <ul data-reveal className="mt-7 divide-y divide-white/10 border-y border-white/10 md:hidden">
-              {MAKE_IN_INDIA.rows.map((row) => (
-                <li key={row.sector} className="py-4">
+              {c.makeRows.map((row, i) => (
+                <li key={i} className="py-4">
                   <div className="flex items-baseline justify-between gap-4">
                     <p className="font-medium text-white/90">{row.sector}</p>
                     <p className="font-semibold tabular-nums text-secondary-400">{row.growth}</p>
                   </div>
                   <p className="mt-1 text-sm tabular-nums text-white/65">
-                    {row.from} <span className="text-white/40">(FY 2014-15)</span> → {row.to}{' '}
-                    <span className="text-white/40">(FY 2025-26)</span>
+                    {row.from} <span className="text-white/40">({c.makeFromYear})</span> → {row.to}{' '}
+                    <span className="text-white/40">({c.makeToYear})</span>
                   </p>
                 </li>
               ))}
@@ -239,14 +222,14 @@ export default function WhyIndiaPage() {
                 <thead>
                   <tr className="border-b border-white/15 text-sm font-semibold text-primary-300">
                     <th scope="col" className="py-2.5 pr-4">Sector</th>
-                    <th scope="col" className="px-4 py-2.5">FY 2014-15</th>
-                    <th scope="col" className="px-4 py-2.5">FY 2025-26</th>
+                    <th scope="col" className="px-4 py-2.5">{c.makeFromYear}</th>
+                    <th scope="col" className="px-4 py-2.5">{c.makeToYear}</th>
                     <th scope="col" className="py-2.5 pl-4 text-right">Growth</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {MAKE_IN_INDIA.rows.map((row) => (
-                    <tr key={row.sector} className="border-b border-white/10 text-[15px]">
+                  {c.makeRows.map((row, i) => (
+                    <tr key={i} className="border-b border-white/10 text-[15px]">
                       <th scope="row" className="py-3 pr-4 font-medium text-white/90">{row.sector}</th>
                       <td className="px-4 py-3 tabular-nums text-white/70">{row.from}</td>
                       <td className="px-4 py-3 tabular-nums text-white/85">{row.to}</td>
@@ -258,14 +241,14 @@ export default function WhyIndiaPage() {
             </div>
 
             <dl className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {MAKE_IN_INDIA.pli.map((p) => (
-                <div key={p.label} data-reveal className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+              {c.pli.map((p, i) => (
+                <div key={i} data-reveal className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
                   <dd className="text-2xl font-semibold leading-tight text-white">{p.value}</dd>
                   <dt className="mt-2 text-sm leading-snug text-white/65">{p.label}</dt>
                 </div>
               ))}
             </dl>
-            <p className="mt-4 text-xs leading-relaxed text-white/45">Sources: {MAKE_IN_INDIA.source}</p>
+            <p className="mt-4 text-xs leading-relaxed text-white/45">Sources: {c.makeSource}</p>
           </div>
         </div>
       </section>
@@ -295,15 +278,10 @@ export default function WhyIndiaPage() {
       <section id="markets" className="scroll-mt-20 border-t border-black/5 bg-primary-50/40 dark:border-white/10 dark:bg-white/[0.02]">
         <div className="mx-auto max-w-6xl px-5 py-12 lg:px-10">
           <SectionHead id="markets" title="Financial Stock Market Performance" split>
-            <p className={`mt-3 ${BODY}`}>
-              Over the long run, Indian equities have compounded at double-digit rates. The Sensex rose from 3,972 at the
-              end of 2000 to 85,221 at the end of 2025. Markets are volatile, though: 2026 has been a difficult year,
-              with the Sensex down about 14% from its 2025 close as of mid-October, amid foreign investor outflows,
-              higher energy prices and global uncertainty.
-            </p>
+            <RichText text={c.marketsText} paragraphs className={`mt-3 ${BODY}`} strongClass={STRONG} />
           </SectionHead>
-          <ChartCard title={SENSEX.title} className="mt-7">
-            <SensexLine points={SENSEX.points} latest={SENSEX.latest} />
+          <ChartCard title={sensex.title} className="mt-7">
+            <SensexLine points={sensex.points} latest={sensex.latest} />
           </ChartCard>
         </div>
       </section>
@@ -311,24 +289,24 @@ export default function WhyIndiaPage() {
       {/* ─── 07 Global view ───────────────────────────────────── */}
       <section id="global" className="scroll-mt-20 border-t border-black/5 dark:border-white/10">
         <div className="mx-auto max-w-6xl px-5 py-12 lg:px-10">
-          <SectionHead id="global" title={INDICES.title} split>
-            <p className={`mt-3 ${BODY}`}>{INDICES.subtitle}.</p>
+          <SectionHead id="global" title={c.indicesTitle} split>
+            <p className={`mt-3 ${BODY}`}>{c.indicesSubtitle.replace(/\.?$/, '.')}</p>
           </SectionHead>
           <div className="mt-7 grid gap-4 lg:grid-cols-[1.5fr_0.5fr]">
             <div data-reveal className={`${CARD} bg-white p-5 dark:bg-white/[0.03] sm:p-6`}>
-              <ChangeBars rows={INDICES.rows} />
+              <ChangeBars rows={c.indicesRows} />
             </div>
             <aside
               data-reveal
               className="rounded-3xl bg-gradient-to-br from-primary-50 to-secondary-50 p-6 ring-1 ring-primary-100 dark:from-primary-500/10 dark:to-secondary-500/10 dark:ring-white/10"
             >
               <h3 className="text-lg font-semibold text-black dark:text-white">In US-dollar terms</h3>
-              <p className="mt-2 text-sm leading-relaxed text-black/70 dark:text-white/70">{DOLLAR_TERMS}</p>
+              <p className="mt-2 text-sm leading-relaxed text-black/70 dark:text-white/70">{c.dollarTerms}</p>
             </aside>
           </div>
           <div data-reveal className="mt-4 space-y-1.5 text-xs leading-relaxed text-black/50 dark:text-white/50">
-            <p className="text-black/60 dark:text-white/60">{INDICES.note}</p>
-            <p>{INDICES.levels}</p>
+            <p className="text-black/60 dark:text-white/60">{c.indicesNote}</p>
+            <p>{c.indicesLevels}</p>
           </div>
         </div>
       </section>
@@ -362,7 +340,7 @@ export default function WhyIndiaPage() {
             <h2 className="mt-3 text-3xl font-semibold leading-tight text-balance sm:text-4xl">
               A compelling <span className="text-secondary-400">long-term</span> opportunity
             </h2>
-            <p className="mt-3 max-w-3xl text-base leading-relaxed text-white/75">{CONCLUSION}</p>
+            <p className="mt-3 max-w-3xl text-base leading-relaxed text-white/75">{c.conclusion}</p>
             <div className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-4">
               <Link
                 href="/nri/why-invest-in-india#contact"
@@ -388,7 +366,7 @@ export default function WhyIndiaPage() {
       <section className="mx-auto max-w-6xl px-5 pb-16 pt-6 lg:px-10">
         <p className="border-t border-black/10 pt-6 text-xs leading-relaxed text-black/50 dark:border-white/10 dark:text-white/50">
           Krold Mfins Private Limited is an AMFI-registered Mutual Fund Distributor. The figures on this page were
-          checked in {AS_OF} and are given for general information only; they are not investment advice. Past
+          checked in {c.asOf} and are given for general information only; they are not investment advice. Past
           performance does not guarantee future returns. Mutual fund investments are subject to market risks; read all
           scheme-related documents carefully before investing.
         </p>

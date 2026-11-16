@@ -4,6 +4,8 @@ import Footer from '../components/Footer'
 import ScrollToHash from '../components/ScrollToHash'
 import HydrationReveal from '../components/HydrationReveal'
 import SiteChrome from '../components/SiteChrome'
+import { SiteContentProvider } from '../components/SiteContent'
+import { getSiteContent } from '../lib/content/store'
 
 export const metadata = {
   title: 'Krold Mfins | Wealth & Insurance',
@@ -29,7 +31,8 @@ const bootScript = `(function () {
   document.documentElement.classList.add('hydrating');
 })();`
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const content = await getSiteContent()
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -37,14 +40,16 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <div id="root">
-          <ScrollToHash />
-          <SiteChrome>
-            <Navbar />
-          </SiteChrome>
-          {children}
-          <SiteChrome>
-            <Footer />
-          </SiteChrome>
+          <SiteContentProvider content={content}>
+            <ScrollToHash />
+            <SiteChrome>
+              <Navbar />
+            </SiteChrome>
+            {children}
+            <SiteChrome>
+              <Footer />
+            </SiteChrome>
+          </SiteContentProvider>
         </div>
         <HydrationReveal />
       </body>

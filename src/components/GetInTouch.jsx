@@ -48,16 +48,34 @@ export default function GetInTouch() {
     setMapFocus(id)
   }
   const [submitted, setSubmitted] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState('')
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm((f) => ({ ...f, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
+  // /api/contact passes the enquiry to the Google Sheet, which also emails the owner.
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // TODO: send `form` to the Google Sheets integration once it's wired up.
-    setSubmitted(true)
+    setSending(true)
+    setError('')
+    try {
+      const website = new FormData(e.currentTarget).get('website')
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...form, website }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || 'We couldn’t send your message. Please try again.')
+      setSubmitted(true)
+    } catch (err) {
+      setError(err.message || 'We couldn’t send your message. Please try again.')
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -243,11 +261,19 @@ export default function GetInTouch() {
                   textarea
                   required
                 />
+                {/* Bot trap: hidden from people and screen readers, so only bots fill it in. */}
+                <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
+                {error && (
+                  <p role="alert" className="rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-300">
+                    {error}
+                  </p>
+                )}
                 <button
                   type="submit"
-                  className="mt-1 inline-flex items-center justify-center rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 px-7 py-3 text-[15px] font-semibold text-white shadow-md shadow-primary-200 dark:shadow-black/40 transition-all duration-300 hover:shadow-lg hover:shadow-secondary-200 dark:hover:shadow-black/50 hover:-translate-y-0.5 active:translate-y-0"
+                  disabled={sending}
+                  className="mt-1 inline-flex items-center justify-center rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 px-7 py-3 text-[15px] font-semibold text-white shadow-md shadow-primary-200 dark:shadow-black/40 transition-all duration-300 hover:shadow-lg hover:shadow-secondary-200 dark:hover:shadow-black/50 hover:-translate-y-0.5 active:translate-y-0 disabled:pointer-events-none disabled:opacity-70"
                 >
-                  Send Message
+                  {sending ? 'Sending…' : 'Send Message'}
                 </button>
               </form>
             )}

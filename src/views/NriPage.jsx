@@ -12,7 +12,8 @@ import { Accent, CARD, Eyebrow, NriIcon, SectionHeading } from '../components/nr
 import Testimonials from '../components/Testimonials'
 import GetInTouch from '../components/GetInTouch'
 import { useRevealOnScroll } from '../hooks/useRevealOnScroll'
-import { AS_OF, HERO_ROUTE, HERO_STATS, REASONS } from '../data/nri'
+import { HERO_ROUTE, REASONS } from '../data/nri'
+import { useSiteContent } from '../components/SiteContent'
 
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -25,6 +26,7 @@ function Arrow({ className = '' }) {
 }
 
 export default function NriPage() {
+  const { asOf, heroStats } = useSiteContent('nri')
   const pageRef = useRef(null)
   const heroTextRef = useRef(null)
 
@@ -93,8 +95,8 @@ export default function NriPage() {
       {/* ─── Headline figures, each with where it comes from ──── */}
       <section className="mx-auto max-w-7xl px-5 pb-12 lg:px-10">
         <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {HERO_STATS.map((stat) => (
-            <li key={stat.label} data-reveal className={`${CARD} flex flex-col p-6`}>
+          {heroStats.map((stat, i) => (
+            <li key={i} data-reveal className={`${CARD} flex flex-col p-6`}>
               <p className="self-start rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700 ring-1 ring-primary-100 dark:bg-primary-500/10 dark:text-primary-300 dark:ring-white/10">
                 {stat.badge}
               </p>
@@ -151,7 +153,7 @@ export default function NriPage() {
       <section className="mx-auto max-w-6xl px-5 pb-16 pt-6 lg:px-10">
         <p className="border-t border-black/10 pt-6 text-xs leading-relaxed text-black/50 dark:border-white/10 dark:text-white/50">
           Krold Mfins Private Limited is an AMFI-registered Mutual Fund Distributor. The figures, tax rates and rules on
-          this page were checked in {AS_OF} and are given for general information only. They are not tax, legal or
+          this page were checked in {asOf} and are given for general information only. They are not tax, legal or
           investment advice, and they change with each Budget and regulatory update. Tax outcomes depend on your
           residential status and the treaty between India and your country of residence, so please consult a qualified
           tax adviser before acting. Mutual fund investments are subject to market risks; read all scheme-related

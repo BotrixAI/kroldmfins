@@ -1,8 +1,10 @@
 import { RingMark } from '../about/Rings'
 import { Accent, CARD, Eyebrow, NriIcon, SectionHeading } from './parts'
-import { ACCOUNT_ROWS, ACCOUNTS, ASSET_CLASSES, STEPS } from '../../data/nri'
+import { ACCOUNT_ROWS, ASSET_CLASSES, STEPS } from '../../data/nri'
+import { useSiteContent } from '../SiteContent'
 
 export default function InvestGuide() {
+  const { accounts } = useSiteContent('nri')
   return (
     <>
       {/* ─── Where you can invest ─────────────────────────────── */}
@@ -77,7 +79,7 @@ export default function InvestGuide() {
                 <thead>
                   <tr>
                     <th className="w-[20%] pb-3" />
-                    {ACCOUNTS.map((a) => (
+                    {accounts.map((a) => (
                       <th key={a.key} scope="col" className="pb-3 pl-6 align-bottom font-normal">
                         <span className="block text-2xl font-semibold">{a.name}</span>
                         <span className="mt-0.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">{a.full}</span>
@@ -91,9 +93,9 @@ export default function InvestGuide() {
                       <th scope="row" className="py-3 pr-4 align-top text-sm font-semibold text-white/50">
                         {row.label}
                       </th>
-                      {ACCOUNTS.map((a) => (
+                      {accounts.map((a) => (
                         <td key={a.key} className="py-3 pl-6 align-top text-[15px] leading-snug text-white/85">
-                          {a.rows[row.key]}
+                          {a[row.key]}
                         </td>
                       ))}
                     </tr>
@@ -104,7 +106,7 @@ export default function InvestGuide() {
 
             {/* Mobile: one card per account */}
             <div className="mt-10 space-y-4 md:hidden">
-              {ACCOUNTS.map((a) => (
+              {accounts.map((a) => (
                 <div key={a.key} data-reveal className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
                   <p className="text-2xl font-semibold">{a.name}</p>
                   <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-white/45">{a.full}</p>
@@ -112,7 +114,7 @@ export default function InvestGuide() {
                     {ACCOUNT_ROWS.map((row) => (
                       <div key={row.key}>
                         <dt className="text-xs font-semibold uppercase tracking-wide text-white/45">{row.label}</dt>
-                        <dd className="mt-1 text-[15px] leading-relaxed text-white/85">{a.rows[row.key]}</dd>
+                        <dd className="mt-1 text-[15px] leading-relaxed text-white/85">{a[row.key]}</dd>
                       </div>
                     ))}
                   </dl>

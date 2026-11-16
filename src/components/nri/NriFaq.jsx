@@ -2,24 +2,30 @@
 
 import { useState } from 'react'
 import { Accent, SectionHeading } from './parts'
-import { FAQ_GROUPS } from '../../data/nri'
+import { useSiteContent } from '../SiteContent'
 
+// An answer written over several lines is shown as bullet points, one per line.
 function Answer({ a }) {
-  if (Array.isArray(a)) {
+  const lines = String(a)
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+  if (lines.length > 1) {
     return (
       <ul className="list-disc space-y-2 pl-5">
-        {a.map((line) => (
-          <li key={line}>{line}</li>
+        {lines.map((line, i) => (
+          <li key={i}>{line}</li>
         ))}
       </ul>
     )
   }
-  return <p>{a}</p>
+  return <p>{lines[0]}</p>
 }
 
 export default function NriFaq() {
-  const [active, setActive] = useState(FAQ_GROUPS[0].key)
-  const group = FAQ_GROUPS.find((g) => g.key === active)
+  const { faq: groups } = useSiteContent('nri')
+  const [active, setActive] = useState(groups[0].key)
+  const group = groups.find((g) => g.key === active) ?? groups[0]
 
   return (
     <section id="faq" className="scroll-mt-20 border-t border-black/5 dark:border-white/10">
@@ -33,7 +39,7 @@ export default function NriFaq() {
           </SectionHeading>
 
           <div data-reveal role="tablist" aria-label="FAQ topics" className="mt-6 flex flex-wrap gap-2">
-            {FAQ_GROUPS.map((g) => {
+            {groups.map((g) => {
               const selected = g.key === active
               return (
                 <button
@@ -69,7 +75,7 @@ export default function NriFaq() {
           className="min-w-0 divide-y divide-black/10 border-y border-black/10 dark:divide-white/10 dark:border-white/10"
         >
           {group.items.map((item, i) => (
-            <details key={item.q} open={i === 0} className="group">
+            <details key={i} open={i === 0} className="group">
               <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-3.5 text-left text-base font-semibold text-black transition-colors hover:text-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 dark:text-white dark:hover:text-primary-400 [&::-webkit-details-marker]:hidden">
                 {item.q}
                 <svg

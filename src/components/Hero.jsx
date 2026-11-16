@@ -6,14 +6,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import AnimatedBackground from './hero/AnimatedBackground'
 import KroldCity from './hero/city/KroldCity'
 import { useHydrated } from '../hooks/useHydrated'
+import { useSiteContent } from './SiteContent'
 
 gsap.registerPlugin(ScrollTrigger)
-
-const STATS = [
-  { label: 'Assets Under Management', value: '₹300Cr+' },
-  { label: 'Families Served', value: '200+' },
-  { label: 'Years of Trust', value: '10+' },
-]
 
 // Rotating hero messages. `spotlight` lists the city buildings to highlight alongside each one.
 const SLIDES = [
@@ -58,6 +53,8 @@ export default function Hero() {
 }
 
 function HeroContent() {
+  // The three headline figures are edited in the admin Site data portal.
+  const { heroStats: stats } = useSiteContent('home')
   const sectionRef = useRef(null)
   const textRef = useRef(null)
   const stageWrapRef = useRef(null)
@@ -214,8 +211,8 @@ function HeroContent() {
           </div>
 
           <div className="mt-8 grid max-w-md grid-cols-3 gap-6 border-t border-black/5 dark:border-white/10 pt-6">
-            {STATS.map((stat) => (
-              <div key={stat.label}>
+            {stats.map((stat, i) => (
+              <div key={i}>
                 <p className="text-xl font-semibold text-black dark:text-white sm:text-2xl">{stat.value}</p>
                 <p className="mt-1 text-xs text-black/50 dark:text-white/50">{stat.label}</p>
               </div>

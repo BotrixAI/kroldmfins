@@ -32,12 +32,13 @@ export default function AdminHeader({ username }) {
         <NextLink href="/admin" className="flex shrink-0 items-center gap-3">
           <img src={logo.src} alt="Krold Mfins" className="h-7 w-auto" />
           <span className="hidden border-l border-black/10 pl-3 text-sm font-semibold text-black/70 dark:border-white/15 dark:text-white/70 sm:inline">
-            Blog CMS
+            Admin
           </span>
         </NextLink>
         <nav className="flex items-center gap-1">
           {tab('/admin', 'Posts', pathname === '/admin' || pathname.startsWith('/admin/posts/') && pathname !== '/admin/posts/new')}
           {tab('/admin/posts/new', 'New post', pathname === '/admin/posts/new')}
+          {tab('/admin/content', 'Site data', pathname === '/admin/content')}
         </nav>
         <div className="ml-auto flex items-center gap-1.5">
           <a

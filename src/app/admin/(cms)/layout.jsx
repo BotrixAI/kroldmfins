@@ -2,7 +2,7 @@ import AdminHeader from '../../../components/admin/AdminHeader'
 import { requireAdminPage } from '../../../lib/blog/session'
 
 export const metadata = {
-  title: 'Blog CMS | Krold Mfins',
+  title: 'Admin | Krold Mfins',
   robots: { index: false, follow: false },
 }
 

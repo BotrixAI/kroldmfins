@@ -1,5 +1,6 @@
 import { Accent, Eyebrow, NriIcon } from './parts'
 import { GIFT_CITY } from '../../data/nri'
+import { useSiteContent } from '../SiteContent'
 
 // Skyline on a 400×560 canvas. The two tall towers stand in for GIFT One and GIFT Two.
 const TOWERS = [
@@ -76,6 +77,7 @@ function Skyline() {
 }
 
 export default function GiftCity() {
+  const { giftStats, giftStatsSource, giftNote } = useSiteContent('nri')
   return (
     <section id="gift-city" className="scroll-mt-20 border-t border-black/5 dark:border-white/10">
       <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 lg:grid-cols-[0.72fr_1.28fr] lg:items-stretch lg:gap-12 lg:px-10">
@@ -84,14 +86,14 @@ export default function GiftCity() {
           <Skyline />
           <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-white/10 bg-[#0b1826]/70 p-5 text-white backdrop-blur-sm sm:inset-x-6 sm:bottom-6">
             <dl className="grid grid-cols-3 gap-3">
-              {GIFT_CITY.stats.map((stat) => (
-                <div key={stat.label} className="min-w-0">
+              {giftStats.map((stat, i) => (
+                <div key={i} className="min-w-0">
                   <dd className="text-2xl font-semibold leading-none text-[#ffd27a] sm:text-3xl">{stat.value}</dd>
                   <dt className="mt-2 text-xs leading-snug text-white/80 sm:text-sm">{stat.label}</dt>
                 </div>
               ))}
             </dl>
-            <p className="mt-4 text-xs text-white/55">{GIFT_CITY.statsSource}</p>
+            <p className="mt-4 text-xs text-white/55">{giftStatsSource}</p>
           </div>
         </div>
 
@@ -121,7 +123,7 @@ export default function GiftCity() {
           </ul>
 
           <p data-reveal className="mt-7 border-t border-black/10 pt-4 text-xs leading-relaxed text-black/50 dark:border-white/10 dark:text-white/50">
-            {GIFT_CITY.note}
+            {giftNote}
           </p>
         </div>
       </div>

@@ -1,9 +1,10 @@
 import { Accent, CARD, SectionHeading } from './parts'
-import { AS_OF, CAPITAL_GAINS, EXEMPT_INCOME, TAX_YEAR } from '../../data/nri'
+import { useSiteContent } from '../SiteContent'
 
 const CELL = 'px-3 py-3 align-top text-sm leading-snug text-black/70 dark:text-white/70'
 
 export default function TaxGlance() {
+  const { asOf, taxYear, capitalGains, capitalGainsNote, treatyCountries, exemptIncome } = useSiteContent('nri')
   return (
     <section id="tax" className="scroll-mt-20 border-t border-black/5 bg-primary-50/40 dark:border-white/10 dark:bg-white/[0.02]">
       <div className="mx-auto max-w-6xl px-5 py-12 lg:px-10">
@@ -13,7 +14,7 @@ export default function TaxGlance() {
           intro="Tax is deducted at source on most NRI income in India. Knowing the rates up front means no surprises when you redeem."
           aside={
             <p className="inline-block rounded-full border border-secondary-300 bg-white px-3 py-1 text-xs font-semibold text-secondary-700 dark:border-secondary-500/40 dark:bg-transparent dark:text-secondary-400">
-              Rates for {TAX_YEAR}, checked {AS_OF}
+              Rates for {taxYear}, checked {asOf}
             </p>
           }
         >
@@ -34,8 +35,8 @@ export default function TaxGlance() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/5 dark:divide-white/10">
-                {CAPITAL_GAINS.rows.map((row) => (
-                  <tr key={row.asset}>
+                {capitalGains.map((row, i) => (
+                  <tr key={i}>
                     <th scope="row" className={`${CELL} font-medium text-black/85 dark:text-white/85`}>{row.asset}</th>
                     {row.both ? (
                       <td colSpan={2} className={CELL}>{row.both}</td>
@@ -52,8 +53,8 @@ export default function TaxGlance() {
 
             {/* Phones: one block per asset */}
             <dl className="mt-5 divide-y divide-black/5 dark:divide-white/10 sm:hidden">
-              {CAPITAL_GAINS.rows.map((row) => (
-                <div key={row.asset} className="py-4">
+              {capitalGains.map((row, i) => (
+                <div key={i} className="py-4">
                   <dt className="font-semibold text-black/85 dark:text-white/85">{row.asset}</dt>
                   {row.both ? (
                     <dd className="mt-1 text-[15px] leading-relaxed text-black/70 dark:text-white/70">{row.both}</dd>
@@ -74,7 +75,7 @@ export default function TaxGlance() {
             </dl>
 
             <p className="mt-3 border-t border-black/5 pt-3 text-xs leading-relaxed text-black/50 dark:border-white/10 dark:text-white/50">
-              {CAPITAL_GAINS.note} Surcharge, where applicable, and 4% health and education cess are added to all rates.
+              {capitalGainsNote}
             </p>
           </article>
 
@@ -85,7 +86,7 @@ export default function TaxGlance() {
             >
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/75">Avoiding double tax</p>
               <div className="mt-3 flex items-center gap-4">
-                <p className="text-4xl font-semibold leading-none">85+</p>
+                <p className="text-4xl font-semibold leading-none">{treatyCountries}</p>
                 <p className="font-semibold leading-snug">countries have a tax treaty with India</p>
               </div>
               <p className="mt-3 text-sm leading-relaxed text-white/85">
@@ -97,12 +98,12 @@ export default function TaxGlance() {
             <article data-reveal className={`${CARD} bg-white p-6 dark:bg-white/[0.03]`}>
               <h3 className="font-semibold text-black dark:text-white">Exempt income</h3>
               <ul className="mt-3 space-y-2">
-                {EXEMPT_INCOME.map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-sm leading-relaxed text-black/70 dark:text-white/70">
+                {exemptIncome.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-black/70 dark:text-white/70">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" className="mt-1 h-4 w-4 shrink-0 text-secondary-500" aria-hidden="true">
                       <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
-                    {item}
+                    {item.text}
                   </li>
                 ))}
               </ul>
