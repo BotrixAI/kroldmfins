@@ -79,7 +79,7 @@ function Skyline() {
 export default function GiftCity() {
   const { giftStats, giftStatsSource, giftNote } = useSiteContent('nri')
   return (
-    <section id="gift-city" className="scroll-mt-20 border-t border-black/5 dark:border-white/10">
+    <section id="gift-city" className="scroll-mt-20 border-y border-secondary-100 bg-gradient-to-br from-secondary-50/80 via-secondary-50/40 to-primary-50/60 dark:border-white/10 dark:from-secondary-500/[0.06] dark:via-transparent dark:to-primary-500/[0.05]">
       <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 lg:grid-cols-[0.72fr_1.28fr] lg:items-stretch lg:gap-12 lg:px-10">
         {/* Illustration, with the headline figures laid over it */}
         <div data-reveal className="relative isolate min-h-[380px] overflow-hidden rounded-3xl ring-1 ring-black/5 dark:ring-white/10 lg:min-h-0">
@@ -111,7 +111,7 @@ export default function GiftCity() {
           <ul className="mt-7 grid gap-x-8 gap-y-6 sm:grid-cols-2">
             {GIFT_CITY.features.map((f) => (
               <li key={f.title} data-reveal className="flex items-start gap-4">
-                <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600 ring-1 ring-primary-100 dark:bg-primary-500/10 dark:text-primary-300 dark:ring-white/10">
+                <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-secondary-600 shadow-sm ring-1 ring-secondary-100 dark:bg-secondary-500/10 dark:text-secondary-400 dark:text-primary-300 dark:ring-white/10">
                   <NriIcon name={f.icon} className="h-6 w-6" />
                 </span>
                 <div className="min-w-0">

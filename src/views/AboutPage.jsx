@@ -179,7 +179,7 @@ export default function AboutPage() {
               At KROLD MFINS, we believe true wealth is more than what you accumulate. It is what you{' '}
               <span className="font-semibold text-black/85 dark:text-white/90">protect, grow and pass forward.</span>
             </p>
-            <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
+            <div className="mt-9 flex flex-wrap items-center gap-x-4 gap-y-4">
               <Link
                 href="/about#approach"
                 className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 px-7 py-3 text-[15px] font-semibold text-white shadow-md shadow-primary-200 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-secondary-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-500 dark:shadow-black/40"
@@ -188,7 +188,7 @@ export default function AboutPage() {
               </Link>
               <Link
                 href="/about#founder"
-                className="group inline-flex items-center gap-2 text-[15px] font-semibold text-black/75 transition-colors hover:text-primary-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-500 dark:text-white/75 dark:hover:text-primary-400"
+                className="group inline-flex items-center gap-2 rounded-full border border-primary-200 bg-white/70 px-7 py-3 text-[15px] font-semibold text-primary-600 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary-300 hover:bg-primary-50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-500 dark:border-white/15 dark:bg-transparent dark:text-primary-400 dark:hover:bg-white/5"
               >
                 Meet the founder
                 <Arrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />

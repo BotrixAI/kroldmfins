@@ -9,7 +9,7 @@ export default function InvestGuide() {
     <>
       {/* ─── Where you can invest ─────────────────────────────── */}
       <section id="guide" className="scroll-mt-20">
-        <div className="mx-auto max-w-6xl px-5 pb-12 lg:px-10">
+        <div className="mx-auto max-w-6xl px-5 py-12 lg:px-10 lg:pt-16">
           <SectionHeading
             split
             eyebrow="The NRI investment guide"

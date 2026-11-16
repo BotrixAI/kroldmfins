@@ -69,7 +69,7 @@ export default function NriPage() {
               {HERO_ROUTE.join(' · ')} <span className="text-primary-500">→</span>{' '}
               <span className="text-primary-600 dark:text-primary-400">India</span>
             </p>
-            <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
+            <div className="mt-9 flex flex-wrap items-center gap-x-4 gap-y-4">
               <Link
                 href="/nri/why-invest-in-india"
                 className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 px-7 py-3 text-[15px] font-semibold text-white shadow-md shadow-primary-200 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-secondary-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-500 dark:shadow-black/40"
@@ -78,7 +78,7 @@ export default function NriPage() {
               </Link>
               <Link
                 href="/nri#guide"
-                className="group inline-flex items-center gap-2 text-[15px] font-semibold text-black/75 transition-colors hover:text-primary-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-500 dark:text-white/75 dark:hover:text-primary-400"
+                className="group inline-flex items-center gap-2 rounded-full border border-primary-200 bg-white/70 px-7 py-3 text-[15px] font-semibold text-primary-600 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary-300 hover:bg-primary-50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-500 dark:border-white/15 dark:bg-transparent dark:text-primary-400 dark:hover:bg-white/5"
               >
                 Read the NRI guide
                 <Arrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -112,14 +112,18 @@ export default function NriPage() {
       </section>
 
       {/* ─── Reasons ──────────────────────────────────────────── */}
-      <section className="border-t border-black/5 dark:border-white/10">
-        <div className="mx-auto max-w-6xl px-5 py-12 lg:px-10">
+      <section className="relative border-y border-primary-100/70 bg-gradient-to-br from-primary-50 via-primary-50/60 to-secondary-50/70 dark:border-white/10 dark:from-primary-500/[0.06] dark:via-transparent dark:to-secondary-500/[0.05]">
+        <div className="mx-auto max-w-6xl px-5 py-12 lg:px-10 lg:py-16">
           <SectionHeading eyebrow="Why NRIs invest in India">
             Four reasons that <Accent>outlast</Accent> any market cycle
           </SectionHeading>
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {REASONS.map((reason) => (
-              <article key={reason.title} data-reveal className={`${CARD} flex items-start gap-4 p-6`}>
+              <article
+                key={reason.title}
+                data-reveal
+                className="flex items-start gap-4 rounded-3xl border border-primary-100/70 bg-white p-6 shadow-sm shadow-primary-100/50 dark:border-white/10 dark:bg-white/[0.03] dark:shadow-none"
+              >
                 <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 ring-1 ring-primary-100 dark:bg-primary-500/10 dark:text-primary-300 dark:ring-white/10">
                   <NriIcon name={reason.icon} className="h-6 w-6" />
                 </span>
