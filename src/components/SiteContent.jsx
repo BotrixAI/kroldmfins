@@ -32,6 +32,35 @@ function Bold({ text, strongClass }) {
     )
 }
 
+// A figure's sources as small print: "Sources: A; B." with each name linking to its page.
+export function SourceLinks({ sources, className = '', linkClassName = '' }) {
+  const list = (Array.isArray(sources) ? sources : []).filter((s) => s?.label)
+  if (!list.length) return null
+  return (
+    <p className={className}>
+      {list.length > 1 ? 'Sources: ' : 'Source: '}
+      {list.map((s, i) => (
+        <Fragment key={i}>
+          {i ? '; ' : ''}
+          {s.url ? (
+            <a
+              href={s.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`underline decoration-dotted underline-offset-2 transition-colors hover:decoration-solid ${linkClassName}`}
+            >
+              {s.label}
+            </a>
+          ) : (
+            s.label
+          )}
+        </Fragment>
+      ))}
+      .
+    </p>
+  )
+}
+
 export function RichText({ text, paragraphs = false, className, strongClass }) {
   if (!paragraphs) return <Bold text={text} strongClass={strongClass} />
   return String(text)

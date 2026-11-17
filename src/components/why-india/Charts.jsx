@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { SourceLinks } from '../SiteContent'
 
 // One series per chart: the bar that matters wears the brand colour, the rest stay neutral.
 const MARK = 'bg-primary-500'
@@ -8,12 +9,12 @@ const MUTED = 'bg-black/15 dark:bg-white/20'
 const TIP =
   'pointer-events-none absolute z-10 whitespace-nowrap rounded-lg bg-black px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity duration-150 dark:bg-white dark:text-black'
 
-export function ChartCard({ title, source, children, className = '' }) {
+export function ChartCard({ title, sources, children, className = '' }) {
   return (
     <figure data-reveal className={`rounded-3xl border border-primary-100/70 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03] sm:p-6 ${className}`}>
       <figcaption className="font-semibold text-black dark:text-white">{title}</figcaption>
       <div className="mt-5">{children}</div>
-      {source ? <p className="mt-4 text-xs leading-relaxed text-black/45 dark:text-white/45">Source: {source}</p> : null}
+      <SourceLinks sources={sources} className="mt-4 text-xs leading-relaxed text-black/45 dark:text-white/45" linkClassName="hover:text-primary-600 dark:hover:text-primary-400" />
     </figure>
   )
 }

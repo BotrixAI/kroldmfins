@@ -1,6 +1,6 @@
 import { Accent, Eyebrow, NriIcon } from './parts'
 import { GIFT_CITY } from '../../data/nri'
-import { useSiteContent } from '../SiteContent'
+import { SourceLinks, useSiteContent } from '../SiteContent'
 
 // Skyline on a 400×560 canvas. The two tall towers stand in for GIFT One and GIFT Two.
 const TOWERS = [
@@ -77,7 +77,7 @@ function Skyline() {
 }
 
 export default function GiftCity() {
-  const { giftStats, giftStatsSource, giftNote } = useSiteContent('nri')
+  const { giftStats, giftSources, giftNote } = useSiteContent('nri')
   return (
     <section id="gift-city" className="scroll-mt-20 border-y border-secondary-100 bg-gradient-to-br from-secondary-50/80 via-secondary-50/40 to-primary-50/60 dark:border-white/10 dark:from-secondary-500/[0.06] dark:via-transparent dark:to-primary-500/[0.05]">
       <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 lg:grid-cols-[0.72fr_1.28fr] lg:items-stretch lg:gap-12 lg:px-10">
@@ -93,7 +93,7 @@ export default function GiftCity() {
                 </div>
               ))}
             </dl>
-            <p className="mt-4 text-xs text-white/55">{giftStatsSource}</p>
+            <SourceLinks sources={giftSources} className="mt-4 text-xs leading-relaxed text-white/55" linkClassName="hover:text-white" />
           </div>
         </div>
 

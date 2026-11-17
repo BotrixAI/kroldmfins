@@ -1,36 +1,55 @@
 // Content for the NRI page. Every figure carries its source and period so it can be
-// refreshed in one place: update the value, the source line and AS_OF together.
-export const AS_OF = 'October 2026'
+// refreshed in one place: update the value, its sources and AS_OF together.
+//
+// Sources are { label, url } pairs, shown on the site as links. Each was checked against the
+// publisher's own page in November 2026. The IMF links open the live WEO database, so they
+// show the newest edition; the label names the edition the figure was taken from.
+export const AS_OF = 'November 2026'
+
+export const SRC = {
+  imfGdp: { label: 'IMF World Economic Outlook, Oct 2026: GDP in US dollars', url: 'https://www.imf.org/external/datamapper/NGDPD@WEO/IND' },
+  imfGrowth: { label: 'IMF World Economic Outlook, Oct 2026: real GDP growth', url: 'https://www.imf.org/external/datamapper/NGDP_RPCH@WEO/IND/CHN/USA/WEOWORLD' },
+  imfWeo: { label: 'IMF World Economic Outlook, Oct 2026', url: 'https://www.imf.org/en/Publications/WEO' },
+  mospi: { label: 'MoSPI, Provisional Estimates of GDP 2025-26 (5 Jun 2026)', url: 'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2269286' },
+  unWpp: { label: 'UN World Population Prospects 2024', url: 'https://population.un.org/wpp/' },
+}
 export const TAX_YEAR = 'Tax Year 2026-27'
 
 export const HERO_STATS = [
   {
-    badge: 'On track to be world’s #4 in 2027',
+    badge: 'Projected to be world’s #4 in 2027',
     value: '$4.06T',
     label: 'Size of the Indian economy, 2026',
-    note: '6th largest today, rising to 4th in 2027 ($4.52T). Already 3rd largest by purchasing power.',
-    source: 'IMF World Economic Outlook, Oct 2026',
+    note: '6th largest in 2026, projected to rise to 4th in 2027 ($4.52T). Already 3rd largest by purchasing power.',
+    sources: [
+      SRC.imfGdp,
+      { label: 'IMF WEO, Oct 2026: GDP at purchasing power', url: 'https://www.imf.org/external/datamapper/PPPGDP@WEO/IND/CHN/USA' },
+    ],
   },
   {
     badge: 'Fastest-growing major economy',
     value: '7.7%',
     label: 'Real GDP growth, FY 2025-26',
     note: 'IMF projects 7.0% for 2026, more than twice the world’s 3.1%.',
-    source: 'MoSPI, June 2026; IMF WEO, Oct 2026',
+    sources: [SRC.mospi, SRC.imfGrowth],
   },
   {
     badge: 'World’s #1 remittance recipient',
     value: '$144.8B',
     label: 'Sent home from abroad, FY 2025-26',
-    note: 'A record, up from $125.6B the year before.',
-    source: 'RBI, net private transfers',
+    note: 'Net private transfers, mostly remittances: a record, up from $124.6B the year before.',
+    sources: [
+      { label: 'RBI balance of payments data, cited in a Lok Sabha reply (The Tribune)', url: 'https://www.tribuneindia.com/news/business/indias-net-private-transfers-rise-to-record-usd-144-8-billion-in-fy25-26-centre-says-no-war-wise-remittance-data-maintained/' },
+      { label: 'RBI, balance of payments Q4 2025-26', url: 'https://www.rbi.org.in/Scripts/BS_PressReleaseDisplay.aspx?prid=62890' },
+      { label: 'World Bank / KNOMAD remittance data (world #1)', url: 'https://www.knomad.org/data/remittances' },
+    ],
   },
   {
     badge: 'World’s #1 working-age population',
     value: '1.01 bn',
     label: 'People aged 15–64, 2026',
     note: 'Ahead of China, and still growing for decades to come.',
-    source: 'UN World Population Prospects 2024',
+    sources: [SRC.unWpp, { label: 'India population pyramid 2026 (UN WPP 2024 data)', url: 'https://populationpyramids.org/india' }],
   },
 ]
 
@@ -118,6 +137,12 @@ export const ACCOUNTS = [
   },
 ]
 
+export const ACCOUNT_SOURCES = [
+  { label: 'RBI Master Direction: Deposits and Accounts', url: 'https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=10198' },
+  { label: 'RBI Master Direction: Remittance of Assets (USD 1 million limit)', url: 'https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=10197' },
+  { label: 'Income Tax Department', url: 'https://www.incometaxindia.gov.in/' },
+]
+
 export const ACCOUNT_ROWS = [
   { key: 'currency', label: 'Held in' },
   { key: 'holds', label: 'What it holds' },
@@ -178,6 +203,12 @@ export const CAPITAL_GAINS = {
   note: 'TDS is deducted at source on NRIs’ capital gains, dividends and NRO interest; excess TDS can be reclaimed by filing a return.',
 }
 
+export const TAX_SOURCES = [
+  { label: 'Income Tax Department', url: 'https://www.incometaxindia.gov.in/' },
+  { label: 'Union Budget 2024-25, Memorandum to the Finance Bill (capital gains rates)', url: 'https://www.indiabudget.gov.in/budget2024-25/doc/memo.pdf' },
+  { label: 'Union Budget 2026-27, Memorandum to the Finance Bill (share buybacks)', url: 'https://www.indiabudget.gov.in/doc/memo.pdf' },
+]
+
 export const EXEMPT_INCOME = [
   'Interest earned on Non-Resident External (NRE) accounts and Foreign Currency Non-Resident (FCNR) deposits.',
   'Any sum received, including bonus, under a life insurance policy on maturity or premature withdrawal, provided the policy was issued after 1 April 2012 and the yearly premium does not exceed 10% of the sum assured.',
@@ -189,7 +220,10 @@ export const GIFT_CITY = {
     { value: '217', label: 'Fund managers' },
     { value: '$39B', label: 'Fund commitments' },
   ],
-  statsSource: 'GIFT IFSC, March 2026',
+  sources: [
+    { label: 'IFSCA (GIFT IFSC regulator), March 2026', url: 'https://www.ifsca.gov.in/' },
+    { label: 'IFSCA data reported by Cafemutual', url: 'https://cafemutual.com/news/industry/37886-gift-ifsc-closes-fy26-with-strongest-quarterly-jump-in-commitments-fund-raising-nears-usd-20-billion-by-march-2026' },
+  ],
   features: [
     {
       icon: 'dollar',
@@ -212,7 +246,7 @@ export const GIFT_CITY = {
       text: 'Indian and global funds, GIFT Nifty, bonds and insurance, under a single regulator, IFSCA.',
     },
   ],
-  note: 'Tax treatment depends on the product and your country of residence; please consult a tax adviser. Sources: IFSCA / GIFT City data as of March 2026; Income-tax Act provisions as amended by Finance Act 2025. Image: illustration.',
+  note: 'Tax treatment depends on the product and your country of residence; please consult a tax adviser. Tax points reflect Income-tax Act provisions as amended by Finance Act 2025. Image: illustration.',
 }
 
 export const FAQ_GROUPS = [

@@ -1,6 +1,9 @@
 // Content for the "Why invest in India" page (/nri/why-invest-in-india). Every figure carries
-// its source so it can be refreshed in one place: update the value and its source line together.
-export const AS_OF = 'October 2026'
+// its source so it can be refreshed in one place: update the value and its sources together.
+// Sources are { label, url } pairs, shown on the site as links, each checked in November 2026.
+import { SRC } from './nri'
+
+export const AS_OF = 'November 2026'
 
 export const INTRO =
   'India remains one of the fastest-growing major economies in the world. A young workforce, a large and growing domestic market, world-leading digital infrastructure and a steady pipeline of reforms continue to attract investment from around the globe. This page sets out, with sources, the factors that make India a compelling long-term destination for NRI investors, and the risks worth keeping in mind.'
@@ -13,15 +16,20 @@ export const GDP_GROWTH = {
     { label: 'World', value: 3.1 },
     { label: 'USA', value: 2.3 },
   ],
-  source: 'IMF WEO, October 2026. China figure derived from the IMF’s reported 2.5-point gap with India (Rio Times).',
-  textSource: 'IMF WEO Oct 2026 via Business Today; The Week; The Federal.',
+  sources: [SRC.imfGrowth],
+  textSources: [
+    SRC.mospi,
+    SRC.imfWeo,
+    { label: 'IMF WEO, Oct 2026: share of world GDP at purchasing power', url: 'https://www.imf.org/external/datamapper/PPPSH@WEO/IND' },
+    { label: 'Business Today on the IMF’s October 2026 upgrade', url: 'https://www.businesstoday.in/latest/economy/story/imf-raises-indias-growth-forecast-to-7-for-2026-upgrades-outlook-by-60-bps-561120-2026-10-13' },
+  ],
 }
 
 export const PEOPLE_STATS = [
   { value: '29.2 yrs', label: 'Median age (China: 40.6)' },
   { value: '68.6%', label: 'Working age (15–64), about 1.01 bn people' },
   { value: '≈854 mn', label: 'People under 35' },
-  { value: '38.3 yrs', label: 'Median age in 2050, still younger than China today' },
+  { value: '39.2 yrs', label: 'Median age in 2050, still younger than China today' },
 ]
 
 // Ordered youngest to oldest, so the bar reads as one light-to-dark ramp.
@@ -33,7 +41,12 @@ export const AGE_GROUPS = {
     { label: '35–64 years', people: '510 mn', share: 34.6 },
     { label: '65+ years', people: '112 mn', share: 7.6 },
   ],
-  source: 'UN World Population Prospects 2024, 2026 medium-variant projection (via populationpyramids.org); Economic Survey of India.',
+  sources: [
+    SRC.unWpp,
+    { label: 'India population pyramid 2026 (UN WPP 2024, medium variant)', url: 'https://populationpyramids.org/india' },
+    { label: 'India population pyramid 2050 (UN WPP 2024, medium variant)', url: 'https://www.populationpyramid.net/india/2050/' },
+    { label: 'Economic Survey 2023-24 (jobs needed to 2030)', url: 'https://www.indiabudget.gov.in/budget2024-25/economicsurvey/' },
+  ],
 }
 
 export const UPI = {
@@ -45,23 +58,33 @@ export const UPI = {
     { label: 'FY25', value: 185.9, worth: '₹261 L cr' },
     { label: 'FY26', value: 241.6, worth: '₹314 L cr', highlight: true },
   ],
-  source: 'Ministry of Finance reply in Lok Sabha (Outlook Money).',
+  sources: [
+    { label: 'NPCI, UPI product statistics', url: 'https://www.npci.org.in/what-we-do/upi/product-statistics' },
+    { label: 'Ministry of Finance (PIB), UPI completes 10 years', url: 'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2302657' },
+    { label: 'Ministry of Finance (PIB), UPI’s 49% share of global real-time payments', url: 'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2200569' },
+  ],
 }
 
 export const MAKE_IN_INDIA = {
   rows: [
-    { sector: 'Electronics production', from: '₹1.9 lakh cr', to: '₹13.11 lakh cr', growth: '≈6.9×' },
+    { sector: 'Electronics production', from: '₹1.90 lakh cr', to: '₹13.11 lakh cr', growth: '≈6.9×' },
     { sector: 'Mobile phone production', from: '₹18,900 cr', to: '₹6.27 lakh cr', growth: '≈33×' },
     { sector: 'Mobile phone exports', from: '₹1,566 cr', to: '₹2.60 lakh cr', growth: '≈166×' },
     { sector: 'Indigenous defence production', from: '₹46,429 cr', to: '₹1.78 lakh cr (record)', growth: '≈3.8×' },
   ],
   pli: [
-    { value: '₹2.6 lakh cr', label: 'Investment attracted by PLI schemes' },
-    { value: '₹23.8 lakh cr', label: 'Production and sales under PLI' },
-    { value: '₹15.5 lakh cr+', label: 'Exports supported by PLI' },
-    { value: '14.6 lakh', label: 'Jobs created under PLI (all as of June 2026)' },
+    { value: '₹2.40 lakh cr+', label: 'Investment attracted by PLI schemes' },
+    { value: '₹22.66 lakh cr', label: 'Production and sales under PLI (NITI Aayog)' },
+    { value: '₹15.2 lakh cr+', label: 'Exports enabled by PLI' },
+    { value: '14.15 lakh+', label: 'Jobs, direct and indirect (all as of March 2026)' },
   ],
-  source: 'PIB / MeitY, 15 Jul 2026; StudyIQ (Make in India at 12); PIB backgrounder, Sep 2026, via Jokta Academy; Organiser.',
+  sources: [
+    { label: 'MeitY (PIB), electronics and mobile phones, 2026', url: 'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2284808' },
+    { label: 'Ministry of Defence (PIB), defence production FY 2025-26', url: 'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2273824' },
+    { label: 'PIB factsheet, defence production since 2014-15', url: 'https://www.pib.gov.in/FactsheetDetails.aspx?Id=149099' },
+    { label: 'Ministry of Commerce (PIB), PLI schemes, 21 Jul 2026', url: 'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2287008' },
+    { label: 'NITI Aayog PLI assessment (ThePrint)', url: 'https://theprint.in/economy/pli-schemes-drive-rs-22-6-lakh-cr-in-output-on-rs-2-4-lakh-cr-investment-job-creation-lags-niti-aayog/3097431/' },
+  ],
 }
 
 export const STABILITY = [
@@ -92,7 +115,11 @@ export const SENSEX = {
     [2014, 27499], [2015, 26118], [2016, 26626], [2017, 34057], [2018, 36068], [2019, 41254], [2020, 47751],
     [2021, 58254], [2022, 60841], [2023, 72240], [2024, 78139], [2025, 85221],
   ],
-  latest: { x: 2025.79, value: 73086, label: '13 Oct 2026' },
+  latest: { x: 2025.78, value: 73034, label: '13 Oct 2026' },
+  sources: [
+    { label: 'BSE, Sensex historical data', url: 'https://www.bseindia.com/indices/IndexArchiveData.html' },
+    { label: 'Yahoo Finance, Sensex history (13 Oct 2026 close)', url: 'https://uk.finance.yahoo.com/quote/%5EBSESN/history/' },
+  ],
 }
 
 export const INDICES = {
@@ -107,7 +134,15 @@ export const INDICES = {
   ],
   note: 'Price returns, excluding dividends, except *DAX: it is a total-return index that already includes reinvested dividends, so it is flattered relative to the others. Returns are in each index’s own currency. Past performance does not guarantee future returns.',
   levels:
-    'Index levels (end-2000 → end-2025): Sensex 3,972.12 → 85,220.60 (BSE via 1Stock1; DIPAM Market Monitor); S&P 500 1,320.28 → 6,845.50 (S&P Dow Jones Indices; Globe and Mail); Nikkei 225 13,785.69 → 50,339.48 (Ámbito; DIPAM); DAX 6,433.61 → 24,490.41 (Deutsche Börse via 1Stock1; dpa-AFX); Hang Seng 15,095.53 → 25,630.54 (HKEX Fact Book 2000; DIPAM).',
+    'Index levels (end-2000 → end-2025): Sensex 3,972.12 → 85,220.60; S&P 500 1,320.28 → 6,845.50; Nikkei 225 13,785.69 → 50,339.48; DAX 6,433.61 → 24,490.41; Hang Seng 15,095.53 → 25,630.54. Rupee per US dollar: about 46.7 → 89.9.',
+  sources: [
+    { label: 'BSE (Sensex)', url: 'https://www.bseindia.com/indices/IndexArchiveData.html' },
+    { label: 'S&P Dow Jones Indices (S&P 500)', url: 'https://www.spglobal.com/spdji/en/indices/equity/sp-500/' },
+    { label: 'Nikkei Indexes (Nikkei 225)', url: 'https://indexes.nikkei.co.jp/en/nkave' },
+    { label: 'Deutsche Börse (DAX)', url: 'https://live.deutsche-boerse.com/indices/dax' },
+    { label: 'Hang Seng Indexes (Hang Seng)', url: 'https://www.hsi.com.hk/eng/indexes/all-indexes/hsi' },
+    { label: 'RBI reference rate archive (rupee)', url: 'https://www.rbi.org.in/scripts/ReferenceRateArchive.aspx' },
+  ],
 }
 
 export const DOLLAR_TERMS =

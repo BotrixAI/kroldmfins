@@ -9,7 +9,9 @@ import { ChangeBars, ChartCard, ColumnChart, SensexLine, StackedShare } from '..
 import GetInTouch from '../components/GetInTouch'
 import { useRevealOnScroll } from '../hooks/useRevealOnScroll'
 import { DIVERSIFICATION, STABILITY } from '../data/whyIndia'
-import { RichText, useSiteContent } from '../components/SiteContent'
+import { RichText, SourceLinks, useSiteContent } from '../components/SiteContent'
+
+const SOURCE_LINK = 'hover:text-primary-600 dark:hover:text-primary-400'
 
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -140,9 +142,9 @@ export default function WhyIndiaPage() {
             <div className={`mt-3 space-y-3 ${BODY}`}>
               <RichText text={c.economyText} paragraphs strongClass={STRONG} />
             </div>
-            <p className="mt-4 text-xs leading-relaxed text-black/45 dark:text-white/45">Sources: {c.economySources}</p>
+            <SourceLinks sources={c.economySources} className="mt-4 text-xs leading-relaxed text-black/45 dark:text-white/45" linkClassName={SOURCE_LINK} />
           </SectionHead>
-          <ChartCard title={c.gdpTitle} source={c.gdpSource}>
+          <ChartCard title={c.gdpTitle} sources={c.gdpSources}>
             <ColumnChart bars={c.gdpBars} />
           </ChartCard>
         </div>
@@ -164,7 +166,7 @@ export default function WhyIndiaPage() {
             ))}
           </dl>
 
-          <ChartCard title={c.ageTitle} source={c.ageSource} className="mt-4">
+          <ChartCard title={c.ageTitle} sources={c.ageSources} className="mt-4">
             <StackedShare groups={c.ageGroups} />
           </ChartCard>
         </div>
@@ -176,7 +178,7 @@ export default function WhyIndiaPage() {
           <SectionHead id="digital" title="Digital Transformation: the UPI Revolution">
             <RichText text={c.digitalText} paragraphs className={`mt-3 ${BODY}`} strongClass={STRONG} />
           </SectionHead>
-          <ChartCard title={c.upiTitle} source={c.upiSource}>
+          <ChartCard title={c.upiTitle} sources={c.upiSources}>
             <ColumnChart bars={c.upiBars} />
           </ChartCard>
         </div>
@@ -248,7 +250,7 @@ export default function WhyIndiaPage() {
                 </div>
               ))}
             </dl>
-            <p className="mt-4 text-xs leading-relaxed text-white/45">Sources: {c.makeSource}</p>
+            <SourceLinks sources={c.makeSources} className="mt-4 text-xs leading-relaxed text-white/45" linkClassName="hover:text-white/80" />
           </div>
         </div>
       </section>
@@ -280,7 +282,7 @@ export default function WhyIndiaPage() {
           <SectionHead id="markets" title="Financial Stock Market Performance" split>
             <RichText text={c.marketsText} paragraphs className={`mt-3 ${BODY}`} strongClass={STRONG} />
           </SectionHead>
-          <ChartCard title={sensex.title} className="mt-7">
+          <ChartCard title={sensex.title} sources={c.sensexSources} className="mt-7">
             <SensexLine points={sensex.points} latest={sensex.latest} />
           </ChartCard>
         </div>
@@ -307,6 +309,7 @@ export default function WhyIndiaPage() {
           <div data-reveal className="mt-4 space-y-1.5 text-xs leading-relaxed text-black/50 dark:text-white/50">
             <p className="text-black/60 dark:text-white/60">{c.indicesNote}</p>
             <p>{c.indicesLevels}</p>
+            <SourceLinks sources={c.indicesSources} linkClassName={SOURCE_LINK} />
           </div>
         </div>
       </section>

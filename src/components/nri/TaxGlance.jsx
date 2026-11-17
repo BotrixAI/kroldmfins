@@ -1,10 +1,10 @@
 import { Accent, CARD, SectionHeading } from './parts'
-import { useSiteContent } from '../SiteContent'
+import { SourceLinks, useSiteContent } from '../SiteContent'
 
 const CELL = 'px-3 py-3 align-top text-sm leading-snug text-black/70 dark:text-white/70'
 
 export default function TaxGlance() {
-  const { asOf, taxYear, capitalGains, capitalGainsNote, treatyCountries, exemptIncome } = useSiteContent('nri')
+  const { asOf, taxYear, capitalGains, capitalGainsNote, treatyCountries, exemptIncome, taxSources } = useSiteContent('nri')
   return (
     <section id="tax" className="scroll-mt-20 border-b border-primary-100/70 bg-primary-50/70 dark:border-white/10 dark:bg-white/[0.02]">
       <div className="mx-auto max-w-6xl px-5 py-12 lg:px-10">
@@ -110,6 +110,11 @@ export default function TaxGlance() {
             </article>
           </div>
         </div>
+        <SourceLinks
+          sources={taxSources}
+          className="mt-4 text-xs leading-relaxed text-black/50 dark:text-white/50"
+          linkClassName="hover:text-primary-600 dark:hover:text-primary-400"
+        />
       </div>
     </section>
   )

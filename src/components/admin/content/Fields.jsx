@@ -59,6 +59,24 @@ export function Field({ field, value, onChange, id }) {
     input = <input {...common} type="text" inputMode="decimal" value={value ?? ''} onChange={(e) => onChange(toNumberish(e.target.value))} />
   } else if (field.type === 'date') {
     input = <input {...common} type="date" value={value ?? ''} onChange={(e) => onChange(e.target.value)} />
+  } else if (field.type === 'url') {
+    const link = /^https?:\/\//i.test(String(value ?? '').trim()) ? String(value).trim() : null
+    input = (
+      <div className="flex items-center gap-2">
+        <input {...common} type="url" inputMode="url" value={value ?? ''} onChange={(e) => onChange(e.target.value)} />
+        {link ? (
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 text-xs font-semibold text-primary-700 hover:underline dark:text-primary-300"
+            title="Open this link in a new tab to check it"
+          >
+            Check
+          </a>
+        ) : null}
+      </div>
+    )
   } else {
     input = <input {...common} type="text" value={value ?? ''} onChange={(e) => onChange(e.target.value)} />
   }

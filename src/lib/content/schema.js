@@ -4,10 +4,26 @@
 // shows up in both. Shared by the server and the browser, so no Node imports here.
 //
 // Field types: text (one line), textarea (several lines; **like this** makes words bold),
-// number, date, toggle, and list (rows of sub-fields). A list with `fixed: true` keeps its
-// number of rows, because the design on the site is built for exactly that many.
+// number, date, url (a web address), toggle, and list (rows of sub-fields). A list with
+// `fixed: true` keeps its number of rows, because the design on the site is built for exactly that many.
 
 const BOLD_HELP = 'Put **two stars** either side of words to make them bold. Start a new line for a new paragraph.'
+
+// Where a figure comes from: each source is a name shown on the site, linked to the page it
+// was taken from, so readers (and compliance) can check the number for themselves.
+const sources = (key, label = 'Sources') => ({
+  key,
+  type: 'list',
+  label,
+  itemLabel: 'Source',
+  titleKey: 'label',
+  max: 10,
+  help: 'Give each source a short name and the link to the exact page the figure was taken from (an official publication where possible). The name is shown on the site and opens the link. Leave the link empty if there is no web page.',
+  fields: [
+    { key: 'label', label: 'Name shown on the site', type: 'text', placeholder: 'IMF World Economic Outlook, Oct 2026' },
+    { key: 'url', label: 'Link', type: 'url', placeholder: 'https://' },
+  ],
+})
 
 export const CONTENT_PAGES = [
   {
@@ -99,7 +115,7 @@ export const CONTENT_PAGES = [
               { key: 'value', label: 'Big number', type: 'text', placeholder: '$4.06T' },
               { key: 'label', label: 'What the number is', type: 'text' },
               { key: 'note', label: 'Explanation', type: 'textarea' },
-              { key: 'source', label: 'Source (small print)', type: 'text' },
+              sources('sources', 'Sources (small print on the card)'),
             ],
           },
         ],
@@ -126,6 +142,7 @@ export const CONTENT_PAGES = [
               { key: 'fx', label: 'Exchange-rate risk', type: 'text' },
             ],
           },
+          sources('accountsSources', 'Sources under the table'),
         ],
       },
       {
@@ -157,8 +174,8 @@ export const CONTENT_PAGES = [
       },
       {
         id: 'taxSide',
-        title: 'Tax treaties and exempt income',
-        where: 'The blue “Avoiding double tax” box and the “Exempt income” list beside the tax table.',
+        title: 'Tax treaties, exempt income and tax sources',
+        where: 'The blue “Avoiding double tax” box, the “Exempt income” list beside the tax table, and the sources under the whole tax section.',
         link: '/nri#tax',
         fields: [
           { key: 'treatyCountries', label: 'Number of countries with a tax treaty', type: 'text', placeholder: '85+' },
@@ -170,12 +187,13 @@ export const CONTENT_PAGES = [
             min: 1,
             fields: [{ key: 'text', label: 'Text', type: 'textarea' }],
           },
+          sources('taxSources', 'Sources for the tax rates and rules'),
         ],
       },
       {
         id: 'giftCity',
         title: 'GIFT City figures',
-        where: 'The three figures on the dark GIFT City panel, and the small print at the bottom of that section.',
+        where: 'The three figures on the dark GIFT City panel with their sources, and the small print at the bottom of that section.',
         link: '/nri#gift-city',
         fields: [
           {
@@ -188,7 +206,7 @@ export const CONTENT_PAGES = [
               { key: 'label', label: 'What it is', type: 'text' },
             ],
           },
-          { key: 'giftStatsSource', label: 'Source under the figures', type: 'text' },
+          sources('giftSources', 'Sources under the figures'),
           { key: 'giftNote', label: 'Small print at the bottom of the section', type: 'textarea' },
         ],
       },
@@ -253,7 +271,7 @@ export const CONTENT_PAGES = [
         link: '/nri/why-invest-in-india#economy',
         fields: [
           { key: 'economyText', label: 'Text', type: 'textarea', help: BOLD_HELP, rows: 6 },
-          { key: 'economySources', label: 'Sources under the text', type: 'text' },
+          sources('economySources', 'Sources under the text'),
           { key: 'gdpTitle', label: 'Chart title', type: 'text' },
           {
             key: 'gdpBars',
@@ -269,7 +287,7 @@ export const CONTENT_PAGES = [
               { key: 'highlight', label: 'Highlight this bar', type: 'toggle' },
             ],
           },
-          { key: 'gdpSource', label: 'Chart source', type: 'text' },
+          sources('gdpSources', 'Chart sources'),
         ],
       },
       {
@@ -304,7 +322,7 @@ export const CONTENT_PAGES = [
               { key: 'share', label: 'Share of population (%)', type: 'number', step: 0.1, help: 'The four shares should add up to 100.' },
             ],
           },
-          { key: 'ageSource', label: 'Age-group chart source', type: 'text' },
+          sources('ageSources', 'Sources for this section (shown under the age-group chart)'),
         ],
       },
       {
@@ -330,7 +348,7 @@ export const CONTENT_PAGES = [
               { key: 'highlight', label: 'Highlight this bar', type: 'toggle' },
             ],
           },
-          { key: 'upiSource', label: 'Chart source', type: 'text' },
+          sources('upiSources', 'Sources for the text and chart'),
         ],
       },
       {
@@ -367,13 +385,13 @@ export const CONTENT_PAGES = [
               { key: 'label', label: 'What it is', type: 'text' },
             ],
           },
-          { key: 'makeSource', label: 'Sources', type: 'textarea', rows: 2 },
+          sources('makeSources'),
         ],
       },
       {
         id: 'markets',
         title: '06 · Markets: Sensex chart',
-        where: 'Section 06 “Financial Stock Market Performance”: the text and the Sensex line chart.',
+        where: 'Section 06 “Financial Stock Market Performance”: the text, the Sensex line chart and its sources.',
         link: '/nri/why-invest-in-india#markets',
         fields: [
           { key: 'marketsText', label: 'Text', type: 'textarea', help: BOLD_HELP, rows: 5 },
@@ -402,12 +420,13 @@ export const CONTENT_PAGES = [
               { key: 'close', label: 'Sensex at year end', type: 'number', min: 0 },
             ],
           },
+          sources('sensexSources', 'Chart sources'),
         ],
       },
       {
         id: 'global',
         title: '07 · Global view: Sensex vs world indices',
-        where: 'Section 07: the heading, the bar comparison of world indices, the “In US-dollar terms” box and the small print.',
+        where: 'Section 07: the heading, the bar comparison of world indices, the “In US-dollar terms” box, the small print and its sources.',
         link: '/nri/why-invest-in-india#global',
         fields: [
           { key: 'indicesTitle', label: 'Section heading', type: 'text' },
@@ -430,6 +449,7 @@ export const CONTENT_PAGES = [
           { key: 'dollarTerms', label: '“In US-dollar terms” box', type: 'textarea' },
           { key: 'indicesNote', label: 'Note under the chart', type: 'textarea' },
           { key: 'indicesLevels', label: 'Index levels (small print)', type: 'textarea' },
+          sources('indicesSources', 'Sources for the index levels and exchange rate'),
         ],
       },
       {
@@ -447,7 +467,7 @@ export const CONTENT_PAGES = [
 
 export class ContentError extends Error {}
 
-const MAX_TEXT = { text: 400, textarea: 6000 }
+const MAX_TEXT = { text: 400, textarea: 6000, url: 1000 }
 const MAX_ROWS = 100
 
 function cleanValue(field, value, fallback, where) {
@@ -461,6 +481,14 @@ function cleanValue(field, value, fallback, where) {
       if (value === '' || value == null || !Number.isFinite(n)) throw new ContentError(`${name}: please enter a number.`)
       if (field.min != null && n < field.min) throw new ContentError(`${name}: must be at least ${field.min}.`)
       return n
+    }
+    case 'url': {
+      const url = String(value ?? '').trim()
+      // Only ordinary web links, so nothing like javascript: can be saved and shown as a link.
+      if (url && !/^https?:\/\/[^\s<>"]+$/i.test(url)) {
+        throw new ContentError(`${name}: please enter a full web address starting with https://`)
+      }
+      return url.slice(0, MAX_TEXT.url)
     }
     case 'date':
       if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value)) || Number.isNaN(Date.parse(value))) {

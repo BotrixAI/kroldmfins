@@ -13,7 +13,7 @@ import Testimonials from '../components/Testimonials'
 import GetInTouch from '../components/GetInTouch'
 import { useRevealOnScroll } from '../hooks/useRevealOnScroll'
 import { HERO_ROUTE, REASONS } from '../data/nri'
-import { useSiteContent } from '../components/SiteContent'
+import { SourceLinks, useSiteContent } from '../components/SiteContent'
 
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -103,9 +103,11 @@ export default function NriPage() {
               <p className="mt-5 text-4xl font-semibold leading-none text-black dark:text-white">{stat.value}</p>
               <p className="mt-3 font-semibold text-black/85 dark:text-white/85">{stat.label}</p>
               <p className="mb-5 mt-1.5 text-sm leading-relaxed text-black/60 dark:text-white/60">{stat.note}</p>
-              <p className="mt-auto border-t border-black/5 pt-4 text-xs text-black/45 dark:border-white/10 dark:text-white/45">
-                {stat.source}
-              </p>
+              <SourceLinks
+                sources={stat.sources}
+                className="mt-auto border-t border-black/5 pt-4 text-xs leading-relaxed text-black/45 dark:border-white/10 dark:text-white/45"
+                linkClassName="hover:text-primary-600 dark:hover:text-primary-400"
+              />
             </li>
           ))}
         </ul>

@@ -1,10 +1,10 @@
 import { RingMark } from '../about/Rings'
 import { Accent, CARD, Eyebrow, NriIcon, SectionHeading } from './parts'
 import { ACCOUNT_ROWS, ASSET_CLASSES, STEPS } from '../../data/nri'
-import { useSiteContent } from '../SiteContent'
+import { SourceLinks, useSiteContent } from '../SiteContent'
 
 export default function InvestGuide() {
-  const { accounts } = useSiteContent('nri')
+  const { accounts, accountsSources } = useSiteContent('nri')
   return (
     <>
       {/* ─── Where you can invest ─────────────────────────────── */}
@@ -121,6 +121,8 @@ export default function InvestGuide() {
                 </div>
               ))}
             </div>
+
+            <SourceLinks sources={accountsSources} className="mt-6 text-xs leading-relaxed text-white/45" linkClassName="hover:text-white/80" />
           </div>
         </div>
       </section>
