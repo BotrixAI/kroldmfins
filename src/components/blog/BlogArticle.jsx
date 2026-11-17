@@ -1,5 +1,5 @@
 import BlogCover from './BlogCover'
-import { formatDate, readingTime } from '../../lib/blog/utils'
+import { formatDate, postCategories, readingTime } from '../../lib/blog/utils'
 
 export function PostMeta({ post, className = '' }) {
   const minutes = post.readingTime ?? readingTime(post.content)
@@ -17,12 +17,13 @@ export function PostMeta({ post, className = '' }) {
 
 // The article itself, used by the public post page and by the admin preview.
 export default function BlogArticle({ post }) {
+  const categories = postCategories(post)
   return (
     <article>
       <header className="mx-auto max-w-3xl">
-        {post.category ? (
+        {categories.length ? (
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-600 dark:text-primary-400">
-            {post.category}
+            {categories.join(' · ')}
           </p>
         ) : null}
         <h1 className="mt-4 text-3xl font-semibold leading-[1.15] text-balance text-black dark:text-white sm:text-4xl lg:text-[2.75rem]">

@@ -15,7 +15,7 @@ import {
   LuTriangleAlert,
 } from 'react-icons/lu'
 import BlogCover from '../blog/BlogCover'
-import { STATUSES, STATUS_LABELS, formatDate } from '../../lib/blog/utils'
+import { STATUSES, STATUS_LABELS, formatDate, postCategories } from '../../lib/blog/utils'
 import { Button, ConfirmDialog, StatusBadge, Toast } from './ui'
 import { INPUT, PANEL, api, buttonClass, useToast } from './client'
 
@@ -38,7 +38,7 @@ export default function Dashboard({ posts: initialPosts, loadError, cloudinary }
     return posts.filter(
       (p) =>
         (filter === 'all' || p.status === filter) &&
-        (!q || [p.title, p.excerpt, p.category, ...(p.tags || [])].join(' ').toLowerCase().includes(q)),
+        (!q || [p.title, p.excerpt, ...postCategories(p), ...(p.tags || [])].join(' ').toLowerCase().includes(q)),
     )
   }, [posts, filter, query])
 
@@ -146,7 +146,7 @@ export default function Dashboard({ posts: initialPosts, loadError, cloudinary }
                       <LuStar className="h-3.5 w-3.5" /> Featured
                     </span>
                   ) : null}
-                  <span className="text-xs text-black/45 dark:text-white/45">{post.category}</span>
+                  <span className="text-xs text-black/45 dark:text-white/45">{postCategories(post).join(' · ')}</span>
                 </div>
                 <p className="mt-1.5 truncate font-semibold text-black dark:text-white">{post.title}</p>
                 <p className="mt-0.5 text-xs text-black/50 dark:text-white/50">

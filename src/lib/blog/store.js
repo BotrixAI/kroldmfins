@@ -2,7 +2,7 @@ import 'server-only'
 import { randomUUID } from 'node:crypto'
 import { unstable_cache, revalidatePath, revalidateTag } from 'next/cache'
 import { createQueue, readJsonDocument, writeJsonDocument } from './jsonStore'
-import { CATEGORIES, STATUSES, readingTime, slugify } from './utils'
+import { CATEGORIES, MAX_CATEGORIES, STATUSES, postCategories, readingTime, slugify } from './utils'
 import { SEED_POSTS } from '../../data/blogPosts'
 
 // All posts are kept in one JSON document (see jsonStore.js for where it lives).
@@ -15,7 +15,11 @@ const writeDocument = (doc) => writeJsonDocument(DOC_NAME, doc)
 async function loadPosts() {
   const doc = await readDocument()
   const posts = doc?.posts ?? SEED_POSTS
-  return posts.map((post) => ({ ...post, readingTime: post.readingTime ?? readingTime(post.content) }))
+  return posts.map(({ category, ...post }) => ({
+    ...post,
+    categories: postCategories({ ...post, category }),
+    readingTime: post.readingTime ?? readingTime(post.content),
+  }))
 }
 
 const enqueue = createQueue()
@@ -36,6 +40,13 @@ const byNewest = (key) => (a, b) => new Date(b[key] || 0) - new Date(a[key] || 0
 
 export async function listAllPosts() {
   return (await loadPosts()).sort(byNewest('updatedAt'))
+}
+
+// The standard categories plus any new ones an admin has added to a post (drafts included),
+// so a category introduced on one post is offered on every other post too.
+export async function listCategories() {
+  const used = (await loadPosts()).flatMap((post) => post.categories)
+  return [...new Set([...CATEGORIES, ...used])]
 }
 
 export async function getPostById(id) {
@@ -110,7 +121,10 @@ function buildPost(input, existing, posts) {
     excerpt: text(merged.excerpt, 400),
     content,
     coverImage: cleanMedia(merged.coverImage),
-    category: text(merged.category, 60) || CATEGORIES[0],
+    categories: (() => {
+      const list = postCategories(merged).map((c) => text(c, 60)).filter(Boolean).slice(0, MAX_CATEGORIES)
+      return list.length ? list : [CATEGORIES[0]]
+    })(),
     tags: (Array.isArray(merged.tags) ? merged.tags : String(merged.tags || '').split(','))
       .map((tag) => text(tag, 40))
       .filter(Boolean)

@@ -78,7 +78,7 @@ export const SEED_POSTS = [
       'Shyam delayed investing by just one year to save ₹1 lakh. It cost him ₹17 lakh at retirement. Here is why the last year of compounding is the most valuable one.',
     content: PROCRASTINATION.trim(),
     coverImage: null,
-    category: 'Investing Basics',
+    categories: ['Investing Basics'],
     tags: ['Compounding', 'SIP', 'Retirement'],
     author: 'Krold Mfins Team',
     disclaimer:
@@ -97,7 +97,7 @@ export const SEED_POSTS = [
       'Arjun invested half as much as Vikram, yet retired with 55% more. The difference wasn’t money — it was ten extra years of compounding.',
     content: COMPOUNDING.trim(),
     coverImage: null,
-    category: 'Investing Basics',
+    categories: ['Investing Basics'],
     tags: ['Compounding', 'Long-term investing'],
     author: 'Krold Mfins Team',
     disclaimer:

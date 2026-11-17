@@ -6,6 +6,7 @@ import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   LuArrowLeft,
+  LuCheck,
   LuColumns2,
   LuExternalLink,
   LuEye,
@@ -13,6 +14,7 @@ import {
   LuImage,
   LuMonitor,
   LuPencil,
+  LuPlus,
   LuSend,
   LuSmartphone,
   LuStar,
@@ -26,10 +28,10 @@ import BlogArticle from '../blog/BlogArticle'
 import { pickFiles, uploadFile } from './upload'
 import { Button, ConfirmDialog, StatusBadge, Toast } from './ui'
 import { INPUT, LABEL, PANEL, api, buttonClass, useToast } from './client'
-import { CATEGORIES, cldUrl, emptyPost, formatDate, slugify } from '../../lib/blog/utils'
+import { CATEGORIES, MAX_CATEGORIES, cldUrl, emptyPost, formatDate, postCategories, slugify } from '../../lib/blog/utils'
 
 // The fields the admin edits; comparing them tells us whether there are unsaved changes.
-const EDITABLE = ['title', 'slug', 'excerpt', 'content', 'coverImage', 'category', 'tags', 'author', 'disclaimer', 'featured']
+const EDITABLE = ['title', 'slug', 'excerpt', 'content', 'coverImage', 'categories', 'tags', 'author', 'disclaimer', 'featured']
 const snapshot = (post) => JSON.stringify(EDITABLE.map((key) => post[key] ?? null))
 
 const DEVICES = [
@@ -216,6 +218,80 @@ function TagsField({ value, onChange }) {
   )
 }
 
+// Toggle any existing category, or introduce a new one. A new category is saved with the post
+// and from then on is offered on every post. A post always keeps at least one category.
+function CategoriesField({ value, onChange, available = CATEGORIES }) {
+  const [draft, setDraft] = useState('')
+  const options = [...new Set([...available, ...value])]
+  const full = value.length >= MAX_CATEGORIES
+  const name = draft.trim()
+
+  const toggle = (name) => {
+    if (value.includes(name)) {
+      if (value.length > 1) onChange(value.filter((c) => c !== name))
+    } else if (!full) onChange([...value, name])
+  }
+  const add = () => {
+    if (!name) return
+    const existing = options.find((c) => c.toLowerCase() === name.toLowerCase())
+    if (existing) {
+      if (!value.includes(existing) && !full) onChange([...value, existing])
+    } else if (!full) onChange([...value, name])
+    setDraft('')
+  }
+
+  return (
+    <div>
+      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Categories">
+        {options.map((name) => {
+          const on = value.includes(name)
+          return (
+            <button
+              key={name}
+              type="button"
+              aria-pressed={on}
+              onClick={() => toggle(name)}
+              disabled={(on && value.length === 1) || (!on && full)}
+              title={on && value.length === 1 ? 'A post needs at least one category' : undefined}
+              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed ${
+                on
+                  ? 'border-primary-500 bg-primary-500 text-white'
+                  : 'border-black/10 text-black/65 hover:border-primary-300 hover:text-primary-700 disabled:opacity-40 dark:border-white/15 dark:text-white/65 dark:hover:text-primary-300'
+              }`}
+            >
+              {on ? <LuCheck className="h-3 w-3" /> : null}
+              {name}
+            </button>
+          )
+        })}
+      </div>
+      <div className="mt-2 flex gap-2">
+        <input
+          value={draft}
+          maxLength={60}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              add()
+            }
+          }}
+          disabled={full}
+          aria-label="New category name"
+          placeholder="New category"
+          className={`${INPUT} !py-2 text-sm`}
+        />
+        <Button type="button" variant="secondary" size="sm" icon={LuPlus} onClick={add} disabled={full || !name} className="shrink-0">
+          Add
+        </Button>
+      </div>
+      <span className="mt-1 block text-xs text-black/45 dark:text-white/45">
+        Pick one or more. A new category is added to this post and, once saved, offered on every post.
+      </span>
+    </div>
+  )
+}
+
 function AutoTextarea({ value, onChange, className, ...props }) {
   const ref = useRef(null)
   useEffect(() => {
@@ -226,7 +302,7 @@ function AutoTextarea({ value, onChange, className, ...props }) {
   return <textarea ref={ref} rows={1} value={value} onChange={(e) => onChange(e.target.value)} className={`resize-none overflow-hidden ${className}`} {...props} />
 }
 
-export default function PostEditor({ initialPost, cloudinary }) {
+export default function PostEditor({ initialPost, categories, cloudinary }) {
   const router = useRouter()
   const [post, setPost] = useState(() => initialPost ?? emptyPost())
   const [savedSnapshot, setSavedSnapshot] = useState(() => snapshot(initialPost ?? emptyPost()))
@@ -419,15 +495,10 @@ export default function PostEditor({ initialPost, cloudinary }) {
             <span className="mt-1 block text-xs text-black/45 dark:text-white/45">Changing this breaks links people have already shared.</span>
           ) : null}
         </label>
-        <label className="block">
-          <span className={LABEL}>Category</span>
-          <input list="blog-categories" className={INPUT} value={post.category} onChange={(e) => set('category')(e.target.value)} />
-          <datalist id="blog-categories">
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c} />
-            ))}
-          </datalist>
-        </label>
+        <div>
+          <span className={LABEL}>Categories</span>
+          <CategoriesField value={postCategories(post)} onChange={set('categories')} available={categories} />
+        </div>
         <div>
           <span className={LABEL}>Tags</span>
           <TagsField value={post.tags || []} onChange={set('tags')} />

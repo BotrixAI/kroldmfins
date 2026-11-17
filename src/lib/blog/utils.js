@@ -9,6 +9,14 @@ export const STATUS_LABELS = {
 }
 
 export const CATEGORIES = ['Investing Basics', 'Mutual Funds', 'Retirement', 'Tax Planning', 'Insurance', 'NRI', 'Markets']
+export const MAX_CATEGORIES = 7
+
+// A post can sit in several categories. Posts saved before that was possible have a
+// single `category` string instead, so read either shape.
+export function postCategories(post) {
+  const list = Array.isArray(post?.categories) ? post.categories : post?.category ? [post.category] : []
+  return [...new Set(list.map((c) => String(c ?? '').trim()).filter(Boolean))]
+}
 
 export function slugify(text = '') {
   return text
@@ -65,7 +73,7 @@ export function emptyPost() {
     excerpt: '',
     content: '',
     coverImage: null,
-    category: CATEGORIES[0],
+    categories: [CATEGORIES[0]],
     tags: [],
     author: 'Krold Mfins Team',
     disclaimer: '',

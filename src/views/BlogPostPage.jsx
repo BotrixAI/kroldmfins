@@ -6,7 +6,7 @@ import { gsap } from 'gsap'
 import BlogArticle from '../components/blog/BlogArticle'
 import BlogCover from '../components/blog/BlogCover'
 import GetInTouch from '../components/GetInTouch'
-import { formatDate } from '../lib/blog/utils'
+import { formatDate, postCategories } from '../lib/blog/utils'
 
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -99,7 +99,7 @@ export default function BlogPostPage({ post, related }) {
                   </div>
                   <div className="min-w-0">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-600 dark:text-primary-400">
-                      {item.category}
+                      {postCategories(item).join(' · ')}
                     </p>
                     <h3 className="mt-1.5 line-clamp-3 font-semibold leading-snug text-black transition-colors group-hover:text-primary-600 dark:text-white dark:group-hover:text-primary-400">
                       {item.title}

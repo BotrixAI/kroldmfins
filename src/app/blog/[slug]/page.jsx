@@ -31,10 +31,11 @@ export default async function Page({ params }) {
   const post = posts.find((p) => p.slug === slug)
   if (!post) notFound()
 
-  // Same category first, then the most recent of the rest.
+  // Posts sharing the most categories first, then the most recent of the rest.
+  const shared = (p) => p.categories.filter((c) => post.categories.includes(c)).length
   const related = posts
     .filter((p) => p.id !== post.id)
-    .sort((a, b) => (b.category === post.category) - (a.category === post.category))
+    .sort((a, b) => shared(b) - shared(a))
     .slice(0, 3)
     .map(({ content: _content, ...rest }) => rest)
 

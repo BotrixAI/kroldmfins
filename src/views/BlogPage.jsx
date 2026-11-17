@@ -5,6 +5,7 @@ import Link from '../components/Link'
 import { gsap } from 'gsap'
 import BlogCover from '../components/blog/BlogCover'
 import { PostMeta } from '../components/blog/BlogArticle'
+import { postCategories } from '../lib/blog/utils'
 import { Accent, Eyebrow } from '../components/nri/parts'
 import { useRevealOnScroll } from '../hooks/useRevealOnScroll'
 
@@ -34,7 +35,7 @@ function FeaturedPost({ post }) {
             Featured
           </span>
           <span className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-600 dark:text-primary-400">
-            {post.category}
+            {postCategories(post).join(' · ')}
           </span>
         </div>
         <h2 className="mt-4 text-2xl font-semibold leading-snug text-balance text-black transition-colors group-hover:text-primary-600 dark:text-white dark:group-hover:text-primary-400 sm:text-3xl">
@@ -63,7 +64,7 @@ function PostCard({ post }) {
         <BlogCover post={post} width={720} className="transition-transform duration-700 group-hover:scale-[1.04]" />
       </div>
       <div className="flex flex-1 flex-col p-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-600 dark:text-primary-400">{post.category}</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-600 dark:text-primary-400">{postCategories(post).join(' · ')}</p>
         <h3 className="mt-3 text-lg font-semibold leading-snug text-black transition-colors group-hover:text-primary-600 dark:text-white dark:group-hover:text-primary-400">
           {post.title}
         </h3>
@@ -82,7 +83,7 @@ export default function BlogPage({ posts }) {
   const [category, setCategory] = useState(ALL)
   const [query, setQuery] = useState('')
 
-  const categories = useMemo(() => [ALL, ...new Set(posts.map((p) => p.category).filter(Boolean))], [posts])
+  const categories = useMemo(() => [ALL, ...new Set(posts.flatMap(postCategories))], [posts])
   const featured = posts.find((p) => p.featured) ?? posts[0]
   const filtering = category !== ALL || query.trim() !== ''
 
@@ -90,9 +91,9 @@ export default function BlogPage({ posts }) {
     const q = query.trim().toLowerCase()
     return posts.filter((post) => {
       if (!filtering && post === featured) return false
-      if (category !== ALL && post.category !== category) return false
+      if (category !== ALL && !postCategories(post).includes(category)) return false
       if (!q) return true
-      return [post.title, post.excerpt, post.category, ...(post.tags || [])].join(' ').toLowerCase().includes(q)
+      return [post.title, post.excerpt, ...postCategories(post), ...(post.tags || [])].join(' ').toLowerCase().includes(q)
     })
   }, [posts, featured, category, query, filtering])
 
