@@ -1,9 +1,10 @@
 // The site's contact form posts here; the enquiry is passed on to the Google Apps Script in
 // google-apps-script/contact-form.gs, which adds it to the sheet and emails the owner.
+import { formatPhone, validateEmail, validateName, validatePhone } from '../../../lib/contactValidation'
+
 const jsonError = (message, status = 400) => Response.json({ error: message }, { status })
 
-const LIMITS = { name: 100, email: 200, phone: 30, city: 100, subject: 200, message: 3000 }
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const LIMITS = { name: 100, email: 200, phone: 30, country: 2, city: 100, subject: 200, message: 3000 }
 
 // Submissions per client, kept in memory: enough to stop one visitor flooding the sheet.
 const recent = new Map()
@@ -41,7 +42,12 @@ export async function POST(request) {
     if (value.length > max) return jsonError(`Please keep the ${key} under ${max} characters.`, 422)
     fields[key] = value
   }
-  if (!EMAIL.test(fields.email)) return jsonError('Please enter a valid email address.', 422)
+  const invalid =
+    validateName(fields.name) || validateEmail(fields.email) || validatePhone(fields.phone, fields.country)
+  if (invalid) return jsonError(invalid, 422)
+  // The sheet and email get one phone value with the country code, e.g. "+91 98765 43210".
+  fields.phone = formatPhone(fields.phone, fields.country)
+  delete fields.country
 
   const key = clientKey(request)
   const now = Date.now()

@@ -5,6 +5,14 @@ import dynamic from 'next/dynamic'
 import { useRevealOnScroll } from '../hooks/useRevealOnScroll'
 import ContactIcon from './icons/ContactIcons'
 import { CONTACT_INFO as CONTACT_DETAILS, OFFICES } from '../data/contactInfo'
+import CountryCodeSelect from './contact/CountryCodeSelect'
+import {
+  DEFAULT_COUNTRY,
+  phoneMaxDigits,
+  validateEmail,
+  validateName,
+  validatePhone,
+} from '../lib/contactValidation'
 
 // Leaflet needs `window` and is only used by the map, so it loads in the browser, in its own chunk.
 const OfficeMap = dynamic(() => import('./contact/OfficeMap'), {
@@ -17,18 +25,47 @@ const CONTACT_INFO = [
   { icon: 'mail', label: 'Email us', value: CONTACT_DETAILS.email, href: `mailto:${CONTACT_DETAILS.email}` },
 ]
 
-function Field({ label, textarea, ...props }) {
-  const cls =
-    'w-full rounded-xl border border-primary-100 dark:border-white/10 bg-white/70 dark:bg-white/5 px-4 py-2.5 text-sm text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 outline-none transition-colors duration-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-200 dark:focus:ring-primary-500/20'
+const fieldBase =
+  'rounded-xl border bg-white/70 dark:bg-white/5 text-sm text-black dark:text-white transition-colors duration-200'
+const fieldBorder = (error) =>
+  error
+    ? 'border-red-400 dark:border-red-400/70 focus-within:ring-2 focus-within:ring-red-200 dark:focus-within:ring-red-500/20'
+    : 'border-primary-100 dark:border-white/10 focus-within:border-primary-400 focus-within:ring-2 focus-within:ring-primary-200 dark:focus-within:ring-primary-500/20'
+const inputCls =
+  'w-full bg-transparent px-4 py-2.5 outline-none placeholder:text-black/30 dark:placeholder:text-white/30'
+
+function FieldError({ id, error }) {
+  if (!error) return null
+  return (
+    <span id={id} className="mt-1 block text-xs text-red-600 dark:text-red-400">
+      {error}
+    </span>
+  )
+}
+
+function Field({ label, textarea, error, ...props }) {
+  const errorId = `${props.name}-error`
+  const shared = { ...props, 'aria-invalid': !!error, 'aria-describedby': error ? errorId : undefined }
+  const cls = `${fieldBase} ${fieldBorder(error)} ${inputCls}`
   return (
     <label className="block">
       <span className="mb-1.5 block text-sm font-medium text-black/70 dark:text-white/70">{label}</span>
-      {textarea ? <textarea {...props} className={`${cls} resize-none`} /> : <input {...props} className={cls} />}
+      {textarea ? <textarea {...shared} className={`${cls} resize-none`} /> : <input {...shared} className={cls} />}
+      <FieldError id={errorId} error={error} />
     </label>
   )
 }
 
-const initialForm = { name: '', email: '', phone: '', city: '', subject: '', message: '' }
+const initialForm = { name: '', email: '', phone: '', country: DEFAULT_COUNTRY, city: '', subject: '', message: '' }
+
+const VALIDATORS = {
+  name: (f) => validateName(f.name),
+  email: (f) => validateEmail(f.email),
+  phone: (f) => validatePhone(f.phone, f.country),
+  city: (f) => (f.city.trim() ? '' : 'Please enter your city.'),
+  subject: (f) => (f.subject.trim() ? '' : 'Please enter a subject.'),
+  message: (f) => (f.message.trim() ? '' : 'Please enter a message.'),
+}
 
 export default function GetInTouch() {
   const sectionRef = useRef(null)
@@ -50,15 +87,38 @@ export default function GetInTouch() {
   const [submitted, setSubmitted] = useState(false)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
+  // Per-field messages; a field is checked once it has been left, then again on every change.
+  const [fieldErrors, setFieldErrors] = useState({})
+
+  const revalidate = (next, name) =>
+    setFieldErrors((errs) => (name in errs && VALIDATORS[name] ? { ...errs, [name]: VALIDATORS[name](next) } : errs))
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setForm((f) => ({ ...f, [name]: value }))
+    const { name } = e.target
+    let { value } = e.target
+    if (name === 'phone') value = value.replace(/\D/g, '').slice(0, phoneMaxDigits(form.country))
+    const next = { ...form, [name]: value }
+    setForm(next)
+    revalidate(next, name)
+  }
+
+  const handleBlur = (e) => {
+    const { name } = e.target
+    if (VALIDATORS[name] && form[name]) setFieldErrors((errs) => ({ ...errs, [name]: VALIDATORS[name](form) }))
+  }
+
+  const handleCountry = (country) => {
+    const next = { ...form, country, phone: form.phone.slice(0, phoneMaxDigits(country)) }
+    setForm(next)
+    if (next.phone) setFieldErrors((errs) => ({ ...errs, phone: VALIDATORS.phone(next) }))
   }
 
   // /api/contact passes the enquiry to the Google Sheet, which also emails the owner.
   const handleSubmit = async (e) => {
     e.preventDefault()
+    const errs = Object.fromEntries(Object.entries(VALIDATORS).map(([k, check]) => [k, check(form)]))
+    setFieldErrors(errs)
+    if (Object.values(errs).some(Boolean)) return
     setSending(true)
     setError('')
     try {
@@ -196,6 +256,7 @@ export default function GetInTouch() {
                   type="button"
                   onClick={() => {
                     setForm(initialForm)
+                    setFieldErrors({})
                     setSubmitted(false)
                   }}
                   className="mt-6 text-sm font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
@@ -204,14 +265,18 @@ export default function GetInTouch() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field
                     label="Full Name"
                     name="name"
                     value={form.name}
                     onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={fieldErrors.name}
                     placeholder="Your name"
+                    autoComplete="name"
+                    maxLength={100}
                     required
                   />
                   <Field
@@ -220,24 +285,44 @@ export default function GetInTouch() {
                     name="email"
                     value={form.email}
                     onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={fieldErrors.email}
                     placeholder="you@example.com"
+                    autoComplete="email"
+                    maxLength={200}
                     required
                   />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field
-                    label="Phone"
-                    type="tel"
-                    name="phone"
-                    value={form.phone}
-                    onChange={handleChange}
-                    placeholder="+91 98765 43210"
-                    required
-                  />
+                  <div>
+                    <label htmlFor="contact-phone" className="mb-1.5 block text-sm font-medium text-black/70 dark:text-white/70">
+                      Phone
+                    </label>
+                    <div className={`flex ${fieldBase} ${fieldBorder(fieldErrors.phone)}`}>
+                      <CountryCodeSelect value={form.country} onChange={handleCountry} />
+                      <input
+                        id="contact-phone"
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel-national"
+                        name="phone"
+                        value={form.phone}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        placeholder={form.country === 'IN' ? '9876543210' : 'Phone number'}
+                        aria-invalid={!!fieldErrors.phone}
+                        aria-describedby={fieldErrors.phone ? 'phone-error' : undefined}
+                        required
+                        className={`${inputCls} min-w-0 pl-3`}
+                      />
+                    </div>
+                    <FieldError id="phone-error" error={fieldErrors.phone} />
+                  </div>
                   <Field
                     label="City"
                     name="city"
                     value={form.city}
+                    error={fieldErrors.city}
                     onChange={handleChange}
                     placeholder="Kolkata"
                     required
@@ -247,6 +332,7 @@ export default function GetInTouch() {
                   label="Subject"
                   name="subject"
                   value={form.subject}
+                  error={fieldErrors.subject}
                   onChange={handleChange}
                   placeholder="What's this about?"
                   required
@@ -255,6 +341,7 @@ export default function GetInTouch() {
                   label="Message"
                   name="message"
                   value={form.message}
+                  error={fieldErrors.message}
                   onChange={handleChange}
                   placeholder="Tell us a bit about what you're looking for..."
                   rows={3}
